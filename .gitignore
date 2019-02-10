@@ -4,3 +4,4 @@
 **/a.*
 **/*.ipynb
 **/.vscode/**
+**/.DS_Store
