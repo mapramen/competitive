@@ -72,12 +72,6 @@ void DFS(int i, int parent){
   ancestors[i].push_back(i);
 
   for(auto p : ancestors[i]){
-    for(int k = 0; k <= m; ++k){
-      dp[i][p][k] = inf;
-    }
-  }
-
-  for(auto p : ancestors[i]){
     for(int k = 1; k <= m; ++k){
       s[i][p][k] = inf;
     }
