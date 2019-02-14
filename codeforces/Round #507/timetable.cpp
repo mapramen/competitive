@@ -8,55 +8,73 @@ typedef long long ll;
 #define pll pair<ll,ll>
 #define PB push_back
 #define MP make_pair
-#define N 501
+#define N 200002
 
-int dp[2][N], s[N], a[N], inf = 1E9;
-char t[N];
-
-void Reset(int a[]){
-  for(int i = 0; i < N; ++i)
-    a[i] = inf;
-}
+ll a[N], b[N], c[N], inf = 4E18;
+set<int> S;
 
 int main(){
-  int n, m, k;
+  int n;
+  ll t;
 
-  scanf("%d%d%d", &n, &m, &k);
+  scanf("%d%lld", &n, &t);
 
-  int cur = 0;
-  while(n--){
-    scanf("%s", t);
-
-    for(int i = 1; i <= m; ++i)
-      s[i] = s[i - 1] + (t[i - 1] - '0');
-
-    Reset(a);
-    a[s[m]] = 0;
-    for(int i = 1; i <= m; ++i){
-      if(t[i - 1] == '0')
-        continue;
-      for(int j = i; j <= m; ++j){
-        if(t[j - 1] == '0')
-          continue;
-        int x = s[m] - s[j] + s[i - 1];
-        a[x] = min(a[x], j - i + 1);
-      }
-    }
-
-    int nxt = 1 - cur;
-    Reset(dp[nxt]);
-    for(int i = k; i > -1; --i)
-      for(int j = 0; j <= i; ++j)
-        dp[nxt][i] = min(dp[nxt][i], dp[cur][i - j] + a[j]);
-
-    cur = 1 - cur;
+  for(int i = 1; i <= n; ++i){
+    scanf("%lld", &a[i]);
   }
 
-  int ans = inf;
-  for(int i = 0; i <= k; ++i)
-    ans = min(ans, dp[cur][i]);
+  for(int i = 2; i <= n; ++i){
+    S.insert(i);
+  }
 
-  printf("%d\n", ans);
+  a[n + 1] = inf;
+  for(int i = 1; i <= n; ++i){
+    b[i] = a[i] + t;
+    c[i] = inf;
+  }
+
+  for(int i = 1; i <= n; ++i){
+    int k;
+    scanf("%d", &k);
+
+    if(k < i){
+      printf("No\n");
+      return 0;
+    }
+
+    c[k] = min(c[k], a[k + 1] + t - 1);
+
+    while(!S.empty()){
+      auto it = S.upper_bound(i);
+
+      if(it == S.end() || *it > k){
+        break;
+      }
+
+      int j = *it;
+      S.erase(j);
+
+      b[j - 1] = max(b[j - 1], a[j] + t);
+    }
+  }
+
+  for(int i = 1; i <= n; ++i){
+    b[i] = max(b[i], 1 + c[i - 1]);
+    c[i] = min(c[i], b[i]);
+  }
+
+  for(int i = 1; i <= n; ++i){
+    if(c[i] < b[i]){
+      printf("No\n");
+      return 0;
+    }
+  }
+
+  printf("Yes\n");
+  for(int i = 1; i <= n; ++i){
+    printf("%lld ", b[i]);
+  }
+  printf("\n");
 
   return 0;
 }
