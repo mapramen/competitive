@@ -101,25 +101,11 @@ pii GetCenterMove(int x, int y){
     return ans;
   }
 
-  int minDis = INT_MAX;
-  for(int dx = -1; dx < 2; ++dx){
-    for(int dy = -1; dy < 2; ++dy){
-      if(dx == 0 && dy == 0){
-        continue;
-      }
-      int nx = x + dx, ny = y + dy;
-      if(!IsPositionAvailableOnBoard(nx, ny)){
-        continue;
-      }
-      int dis = max(abs(nx - M / 2), abs(ny - M / 2));
-      if(dis < minDis){
-        minDis = dis;
-        ans = make_pair(nx, ny);
-      }
-    }
-  }
+  int dx = M / 2 - x, dy = M / 2 - y;
+  dx /= max(1, abs(dx));
+  dy /= max(1, abs(dy));
 
-  return ans;
+  return make_pair(x + dx, y + dy);
 }
 
 pii GetCornerMove(int x, int y, int dx, int dy){
