@@ -84,17 +84,16 @@ int Query(int k, int l, int r, int ql, int qr){
 }
 //-------------------------------------- Segment Tree Ends --------------------------------------//
 
-stack<int> P, S;
+stack<int> S;
 
-void Update(int i, int x){
+void Update(int i){
   int j = i;
-  while(!S.empty() && S.top() < x){
-    j = P.top();
+  while(!S.empty() && a[S.top()] < a[i]){
+    j = S.top();
     S.pop();
-    P.pop();
   }
-  P.push(j);
-  S.push(x);
+  a[j] = a[i];
+  S.push(j);
 
   Update(0, 1, n, j, i, 1);
 }
@@ -109,7 +108,7 @@ int main(){
 
   for(int i = 1, j = 1; j <= n; ++i){
     for( ; j <= n && j < i + m; ++j){
-      Update(j, a[j]);
+      Update(j);
     }
     ans[i] = Query(0, 1, n, i, j - 1);
   }
