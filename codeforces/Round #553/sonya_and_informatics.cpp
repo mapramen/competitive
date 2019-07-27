@@ -120,6 +120,17 @@ int main(){
     m += a[i];
   }
 
+  if(2 * m > n){
+    m = n - m;
+    for(int i = 1; i <= n; ++i){
+      a[i] = 1 - a[i];
+    }
+
+    for(int i = 1, j = n; i < j; ++i, --j){
+      swap(a[i], a[j]);
+    }
+  }
+
   PreProcess(n, m);
   MatrixExponentation(k, m, A, B);
 
