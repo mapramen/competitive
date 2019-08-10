@@ -1,27 +1,39 @@
-#include <bits/stdc++.h>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <queue>
+#include <deque>
+#include <cmath>
+#include <utility>
+#include <algorithm>
+#include <bitset>
+#include <climits>
+#include <random>
+#include <chrono>
+#include <cassert>
 
 using namespace std;
 
 typedef long long ll;
 
-#define pii pair<int,int>
-#define pll pair<ll,ll>
-#define PB push_back
-#define MP make_pair
+#define pii pair< int, int >
+#define pll pair< ll, ll >
 
 void Solve(){
-  int n, k, ans = 0, x;
+  int n, k, ans = 0, m;
 
   cin >> n >> k;
 
-  if(n >= 4 && k > 2){
-    for(int i = 2; i < k; ++i){
-      int m = min(i, n - 1);
-      int ansx = (m * (2 * i + 1 - m)) / 2 - (i + 1);
-      if(ansx > ans){
-        ans = ansx;
-        x = i;
-      }
+  if(n > 2 && k > 3){
+    ans = -k;
+    m = min(n, k);
+    for(int i = 1; i < m; ++i){
+      ans += (k - i);
     }
   }
 
@@ -31,15 +43,10 @@ void Solve(){
     printf("1\n1 %d 1\n", n);
   }
   else{
-    int m = min(x, n - 1);
-    printf("%d\n", m + 1);
-    printf("1 %d %d\n", n, x + 1);
-    printf("1 2 %d\n", x);
-
-    --x;
-    for(int i = 2, k = 2; k <= m; ++i, ++k, --x){
-      int j = (k == m) ? n : i + 1;
-      printf("%d %d %d\n", i, j, x);
+    printf("%d\n", m);
+    printf("%d %d %d\n", 1, n, k);
+    for(int i = 1; i < m; ++i){
+      printf("%d %d %d\n", i, i + 1 == m ? n : i + 1, k - i);
     }
   }
 }

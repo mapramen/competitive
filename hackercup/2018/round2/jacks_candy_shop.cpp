@@ -1,4 +1,22 @@
-#include <bits/stdc++.h>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <queue>
+#include <deque>
+#include <cmath>
+#include <utility>
+#include <algorithm>
+#include <bitset>
+#include <climits>
+#include <random>
+#include <chrono>
+#include <cassert>
+#include <sys/resource.h>
 
 using namespace std;
 
@@ -11,15 +29,14 @@ typedef long long ll;
 #define N 200001
 
 vector< vector<int> > adj(N);
-int c[N], subtreeSize[N], heapNo[N];
+int c[N], subtreeSize[N], heapNo[N], ans, depth, maxdepth;
 priority_queue<int> Q[N];
 
-ll DFS(int i){
+void DFS(int i){
   int heavyChild = i;
-  ll ans = 0;
 
   for(auto k : adj[i]){
-    ans += DFS(k);
+    DFS(k);
     if(subtreeSize[k] > subtreeSize[heavyChild]){
       heavyChild = k;
     }
@@ -48,14 +65,14 @@ ll DFS(int i){
     Q[y].pop();
     --c[i];
   }
-
-  return ans;
+  --depth;
 }
 
 ll Solve(){
   int n, m, a, b;
 
   scanf("%d%d%d%d", &n, &m, &a, &b);
+  printf("n = %d\n", n);
 
   for(int i = 0; i < N; ++i){
     adj[i].clear();
@@ -77,7 +94,11 @@ ll Solve(){
     ++c[x];
   }
 
-  return DFS(0);
+  ans = 0;
+  depth = 0;
+  DFS(0);
+
+  return ans;
 }
 
 int main(){
