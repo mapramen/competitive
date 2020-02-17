@@ -23,11 +23,11 @@ typedef long long ll;
 
 #define pii pair< int, int >
 #define pll pair< ll, ll >
-#define BASE 10000000
+#define BASE 10000005
 #define N (2 * BASE + 5)
 #define MOD 1000000007
 
-int a[N], c[N], k;
+int c[N], k;
 char s[N];
 
 int ModExponentation(int a, int n){
@@ -47,34 +47,39 @@ int ModInv(int a){
 
 void Reset(int n){
   for(k = 0; k <= 2 * n; ++k){
-    a[k] = 0;
     c[k] = 0;
   }
 }
 
 void Initialize(int n){
   k = n;
-  a[k] = 1, c[k] = 1;
+  c[k] = 1;
 }
 
 int Solve(){
   int n;
   scanf("%d%s", &n, s);
 
-  Initialize(n);
+  Initialize(n + 2);
 
   ll ans = 0;
   for(int i = 0; i < n; ++i){
-    k += (s[i] == '(' ? 1 : -1);
-    ++a[k];
-    c[k] = a[k] + c[k + 2];
-    ans = (ans + 1ll * (n - i) * c[k + 1]) % MOD;
+    if(s[i] != '*'){
+      k += (s[i] == '(' ? 1 : -1);
+    }
+
+    ++c[k];
+    
+    if(s[i] == ')'){
+      ans = (ans + 1ll * (n - i) * c[k + 1]) % MOD;
+      c[k - 1] += c[k + 1];
+      c[k + 1] = 0;
+    }
   }
 
-  Reset(n);
+  Reset(n + 5);
 
-  ans %= MOD;
-  ans = (1ll * ans * ModInv((1ll * n * (n + 1) / 2) % MOD)) % MOD;
+  ans = (ans * ModInv((1ll * n * (n + 1) / 2) % MOD)) % MOD;
 
   return ans;
 }
