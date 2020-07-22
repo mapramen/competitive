@@ -38,6 +38,7 @@ void Combine(int k){
   prefixAns[k] = max(prefixAns[k1], sum[k1] + prefixAns[k2]);
   suffixAns[k] = max(suffixAns[k2], suffixAns[k1] + sum[k2]);
   ans[k] = max(suffixAns[k1] + prefixAns[k2], max(ans[k1], ans[k2]));
+  ans[k] = max(0ll, ans[k]);
 }
 
 void Update(int k, int x){
