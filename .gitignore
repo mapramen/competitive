@@ -1,6 +1,7 @@
 **/*.out
 **/*.txt
 **/*.exe
+**/*:Zone.Identifier
 **/a.*
 **/*.ipynb
 **/.vscode/**
