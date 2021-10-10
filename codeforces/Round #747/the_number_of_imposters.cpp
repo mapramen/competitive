@@ -14,65 +14,65 @@ bool visited[N], color[N];
 int grpSize[N], grpWhiteSize[N], grpCount = 0;
 
 bool DFS(int i, bool c){
-	if(visited[i]){
-		return c == color[i];
-	}
+  if(visited[i]){
+    return c == color[i];
+  }
 
-	visited[i] = true;
-	color[i] = c;
-	++grpSize[grpCount];
-	grpWhiteSize[grpCount] += c;
+  visited[i] = true;
+  color[i] = c;
+  ++grpSize[grpCount];
+  grpWhiteSize[grpCount] += c;
 
-	for(auto [j, w]: adj[i]){
-		if(!DFS(j, w ? c : !c)){
-			return false;
-		}
-	}
+  for(auto [j, w]: adj[i]){
+    if(!DFS(j, w ? c : !c)){
+      return false;
+    }
+  }
 
-	return true;
+  return true;
 }
 
 int Solve(){
-	int n, m;
-	scanf("%d%d", &n, &m);
+  int n, m;
+  scanf("%d%d", &n, &m);
 
-	for(int i = 1; i <= n; ++i){
-		visited[i] = false;
-		color[i] = false;
-		grpSize[i] = 0;
-		grpWhiteSize[i] = 0;
-		adj[i].clear();
-	}
+  for(int i = 1; i <= n; ++i){
+    visited[i] = false;
+    color[i] = false;
+    grpSize[i] = 0;
+    grpWhiteSize[i] = 0;
+    adj[i].clear();
+  }
 
-	while(m--){
-		int i, j;
-		scanf("%d%d%s", &i, &j, s);
-		bool w = s[0] == 'c';
-		adj[i].push_back({j, w});
-		adj[j].push_back({i, w}); 
-	}
+  while(m--){
+    int i, j;
+    scanf("%d%d%s", &i, &j, s);
+    bool w = s[0] == 'c';
+    adj[i].push_back({j, w});
+    adj[j].push_back({i, w}); 
+  }
 
-	grpCount = 0;
-	for(int i = 1; i <= n; ++i){
-		grpCount = i;
-		if(!DFS(i, color[i])){
-			return -1;
-		}
-	}
+  grpCount = 0;
+  for(int i = 1; i <= n; ++i){
+    grpCount = i;
+    if(!DFS(i, color[i])){
+      return -1;
+    }
+  }
 
-	int ans = 0;
-	for(int i = 1; i <= n; ++i){
-		ans += max(grpWhiteSize[i], grpSize[i] - grpWhiteSize[i]);
-	}
+  int ans = 0;
+  for(int i = 1; i <= n; ++i){
+    ans += max(grpWhiteSize[i], grpSize[i] - grpWhiteSize[i]);
+  }
 
-	return ans;
+  return ans;
 }
 
 int main(){
-	int t;
-	cin >> t;
-	while(t--){
-		printf("%d\n", Solve());
-	}
-	return 0;
+  int t;
+  cin >> t;
+  while(t--){
+    printf("%d\n", Solve());
+  }
+  return 0;
 }
