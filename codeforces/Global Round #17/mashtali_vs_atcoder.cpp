@@ -42,8 +42,7 @@ void Ground(int k){
     v.push_back(i);
   }
 
-  int g = grundy[1];
-  g ^= (1 + grundy[v.back()]);
+  int g = grundy[1] ^ (1 + grundy[v.back()]);
 
   for(int i: v){
     for(int j: adj[i]){
