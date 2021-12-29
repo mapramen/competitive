@@ -12,6 +12,8 @@ typedef long long ll;
 #define ROOT_INV 704923114
 #define ROOT_PW (1 << 19)
 
+//-------------------------------------- NTT starts --------------------------------------//
+
 ll ModularExponentation(ll a, ll n){
   ll ans = 1;
 
@@ -85,6 +87,8 @@ vector<int> MultiplyPolynomials(vector<int>&a, vector<int>& b){
 
   return c;
 }
+
+//-------------------------------------- NTT ends --------------------------------------//
 
 vector<vector<int>> adj(N);
 
