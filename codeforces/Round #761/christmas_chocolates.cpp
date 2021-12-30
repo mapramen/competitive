@@ -7,8 +7,6 @@ typedef long long ll;
 #define pii pair<int,int>
 #define pll pair<ll,ll>
 
-priority_queue<int> Q;
-
 map<int,pii> dp;
 
 int Parent(int n){
@@ -34,19 +32,18 @@ int main(){
     scanf("%d", &x);
     
     dp[x] = {0, i};
-    Q.push(x);
   }
 
   int maxLen = INT_MIN, maxLenI = -1, maxLenJ = -1;
 
-  while(!Q.empty() && Q.top() != 0){
-    int x = Q.top();
-    for( ; !Q.empty() && Q.top() == x; Q.pop());
+  while(dp.rbegin()->first != 0){
+    int x = dp.rbegin()->first;
+    auto [hx, ihx] = dp.rbegin()->second;
+    dp.erase(x);
 
     int p = Parent(x);
     InitialiseIfNeeded(p);
 
-    auto [hx, ihx] = dp[x];
     auto [hp, ihp] = dp[p];
 
     int len = hx + 1 + hp;
@@ -57,8 +54,6 @@ int main(){
     if(hp < 1 + hx){
       dp[p] = {1 + hx, ihx};
     }
-
-    Q.push(p);
   }
 
   printf("%d %d %d\n", maxLenI, maxLenJ, maxLen);
