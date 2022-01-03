@@ -10,85 +10,60 @@ typedef long long ll;
 #define B 26
 
 char s[N];
-set<int> S[B];
-int leftChild[N], rightChild[N], parent[N], startTime[N], finishTime[N], startTimeToVertex[N], inorderIndex[N], timer = 0;
-bool marker[N];
+int leftChild[N], rightChild[N];
+bool isGood[N], shouldDuplicate[N];
 vector<int> inorder;
 
-int T1[N], T2[N];
-
-void Update(int T[], int i, int x){
-  for( ; i < N; i += (i & -i)){
-    T[i] += x;
+void InorderDFS(int i){
+  if(i == 0){
+    return;
   }
+  
+  InorderDFS(leftChild[i]);
+  
+  inorder.push_back(i);
+
+  InorderDFS(rightChild[i]);
 }
 
-void Update(int T[], int l, int r, int x){
-  Update(T, l, x);
-  Update(T, r + 1, -x);
-}
-
-int Query(int T[], int i){
-  int ans = 0;
-  for( ; i > 0; i -= (i & -i)){
-    ans += T[i];
+bool ShouldDuplicateDFS(int& m, int i, int cost){
+  if(i == 0){
+    return false;
   }
+
+  ++cost;
+  bool ans = ShouldDuplicateDFS(m, leftChild[i], cost);
+
+  if(ans){
+    shouldDuplicate[i] = true;
+  }
+
+  if(!ans && isGood[i] && cost <= m){
+    m -= cost;
+    shouldDuplicate[i] = true;
+    ans = true;
+  }
+
+  if(ans){
+    ShouldDuplicateDFS(m, rightChild[i], 0);
+  }
+
   return ans;
 }
 
-void InorderDFS(int i, int p){
+void PrintDFS(int i){
   if(i == 0){
     return;
   }
 
-  parent[i] = p;
-  
-  InorderDFS(leftChild[i], i);
-  
-  inorder.push_back(i);
-  inorderIndex[i] = inorder.size() - 1;
+  PrintDFS(leftChild[i]);
 
-  InorderDFS(rightChild[i], i);
-}
-
-void PreOrderDFS(int i){
-  if(i == 0){
-    return;
+  putchar(s[i - 1]);
+  if(shouldDuplicate[i]){
+    putchar(s[i - 1]);
   }
 
-  startTime[i] = ++timer;
-  startTimeToVertex[timer] = i;
-
-  PreOrderDFS(leftChild[i]);
-  PreOrderDFS(rightChild[i]);
-
-  finishTime[i] = timer;
-}
-
-void InsertChar(int i, char c){
-  S[c - 'a'].insert(i);
-}
-
-char GetNextChar(int i, char c){
-  int k = -1, xk = INT_MAX;
-  
-  for(int j = 0; j < B; ++j){
-    if(S[j].empty() || 'a' + j == c){
-      continue;
-    }
-
-    auto jt = S[j].upper_bound(i);
-    if(jt == S[j].end()){
-      continue;
-    }
-
-    int xj = *jt;
-    if(xj < xk){
-      xk = xj, k = j;
-    }
-  }
-
-  return 'a' + k;
+  PrintDFS(rightChild[i]);
 }
 
 int main(){
@@ -99,61 +74,23 @@ int main(){
     scanf("%d%d", &leftChild[i], &rightChild[i]);
   }
 
-  InorderDFS(1, 0);
-  PreOrderDFS(1);
+  InorderDFS(1);
 
-  for(int i = 1; i <= n; ++i){
-    Update(T1, startTime[i], finishTime[i], 1);
-  }
+  for(int x = 0; x < n; ){
+    char c = s[inorder[x] - 1];
+    
+    int y = x + 1;
+    for( ; y < n && s[inorder[y] - 1] == c; ++y);
 
-  for(int k = 0; k < n; ++k){
-    int i = inorder[k];
-    InsertChar(2 * k, s[i - 1]);
-  }
-
-  for(int k = 0; k < n; ++k){
-    int i = inorder[k];
-    int d = Query(T1, startTime[i]);
-
-    if(d == 0 || d > m || Query(T2, startTime[i]) > 0){
-      continue;
-    }
-
-    char c = GetNextChar(2 * k, s[i - 1]);
-
-    if(c < s[i - 1]){
-      Update(T2, startTime[i], finishTime[i], 1);
-      continue;
-    }
-
-    for(int j = i; j != 0 && !marker[j]; j = parent[j]){
-      Update(T1, startTime[j], finishTime[j], -1);
-      InsertChar(2 * inorderIndex[j] + 1, s[j - 1]);
-      --m;
-      marker[j] = true;
+    char d = y == n ? 'a' - 1 : s[inorder[y] - 1];
+    for( ; x < y; ++x){
+      isGood[inorder[x]] = d > c;
     }
   }
 
-  while(true){
-    int k = -1, xk = INT_MAX;
-    for(int i = 0; i < B; ++i){
-      if(S[i].empty()){
-        continue;
-      }
+  ShouldDuplicateDFS(m, 1, 0);
 
-      int xi = *(S[i].begin());
-      if(xi < xk){
-        xk = xi, k = i;
-      }
-    }
-
-    if(k == -1){
-      break;
-    }
-
-    putchar('a' + k);
-    S[k].erase(xk);
-  }
+  PrintDFS(1);
   putchar('\n');
 
   return 0;
