@@ -6,67 +6,60 @@ typedef long long ll;
 
 #define pii pair<int,int>
 #define pll pair<ll,ll>
+#define tbii tuple<bool,int,int>
 #define N 300001
 
-vector<vector<int>> adj(N);
-int a[N];
-bool marked[N];
+vector<vector<int>> adj(N), rAdj(N);
+int m = 0, a[N];
+bool visited[N];
 
-bool PathDFS(int t, int i, int p){
-  if(i == t){
-    marked[i] = true;
-    return true;
-  }
+void AddDirectedEdge(int i, int j){
+  rAdj[j].push_back(i);
+}
 
-  bool ans = false;
+int CountDFS(int i, int p){
+  int ci = a[i];
+  
   for(int j: adj[i]){
     if(j == p){
       continue;
     }
-    ans = ans || PathDFS(t, j, i);
+
+    int cj = CountDFS(j, i);
+    
+    if(a[i] == 1 || m - cj > 1){
+      AddDirectedEdge(j, i);
+    }
+
+    if(a[j] == 1 || cj > 1){
+      AddDirectedEdge(i, j);
+    }
+
+    ci += cj;
   }
 
-  marked[i] = ans;
-  return ans;
+  return ci;
 }
 
-void ResetChip(int i){
-  marked[i] = false;
-  a[i] = 0;
-}
-
-void ChipDFS(int i){
-  if(marked[i]){
+void VisitDFS(int i){
+  if(visited[i]){
     return;
   }
 
-  marked[i] = true;
   a[i] = 1;
-
-  for(int j: adj[i]){
-    ChipDFS(j);
+  visited[i] = true;
+  
+  for(int j: rAdj[i]){
+    VisitDFS(j);
   }
-}
-
-void SetChips(int i){
-  ResetChip(i);
-  for(int j: adj[i]){
-    ResetChip(j);
-  }
-
-  ChipDFS(i);
 }
 
 int main(){
   int n;
   scanf("%d", &n);
 
-  int s = 0, t = 0;
   for(int i = 1; i <= n; ++i){
     scanf("%d", &a[i]);
-    if(a[i] != 0){
-      tie(s, t) = make_pair(t, i);
-    }
   }
 
   for(int x = 1; x < n; ++x){
@@ -76,8 +69,17 @@ int main(){
     adj[j].push_back(i);
   }
 
-  PathDFS(s, t, 0);
-  SetChips(s), SetChips(t);
+  for(int i = 1; i <= n; ++i){
+    m += a[i];
+  }
+
+  CountDFS(1, 0);
+
+  for(int i = 1; i <= n; ++i){
+    if(a[i] == 1){
+      VisitDFS(i);
+    }
+  }
 
   for(int i = 1; i <= n; ++i){
     printf("%d ", a[i]);
