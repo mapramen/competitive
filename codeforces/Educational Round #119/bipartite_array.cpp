@@ -9,7 +9,6 @@ typedef long long ll;
 #define pip pair<int,pii>
 
 map<pii,pip> parent;
-map<int,int> M;
 
 void Reset(){
   parent.clear();
@@ -61,29 +60,44 @@ void SwapDimensions(vector<pii>& states){
   }
 }
 
-void TransferStates(vector<pii>& states, vector<pii>& new_states){
-  sort(states.begin(), states.end());
-  states.erase(unique(states.begin(), states.end()), states.end());
+bool IsRedundant(vector<pii>& states, pii& state){
+  int c = 0;
 
-  new_states.clear();
-  for(auto [x, y]: states){
-    if(x == INT_MIN || y == INT_MIN){
-      new_states.push_back({x, y});
+  auto [xi, yi] = state;
+  for(auto [xj, yj]: states){
+    if(xj == xi && yj == yi){
+      ++c;
+      if(c == 2){
+        return true;
+      }
+    }
+
+    if(yi == INT_MIN || yj == INT_MIN){
+      continue;
+    }
+
+    if(xj == xi && yj < yi){
+      return true;
+    }
+
+    if(yj == yi && xj < xi){
+      return true;
     }
   }
 
-  RemoveRedundantStates1Dimension(states);
+  return false;
+}
 
-  SwapDimensions(states);
-  RemoveRedundantStates1Dimension(states);
+void RemoveRedundantStates(vector<pii>& states){
+  sort(states.begin(), states.end());
+  states.erase(unique(states.begin(), states.end()), states.end());
 
-  SwapDimensions(states);
-
-  for(pii& state: states){
-    new_states.push_back(state);
+  for(int i = 0; i < states.size(); ++i){
+    if(IsRedundant(states, states[i])){
+      swap(states[i], states.back());
+      states.pop_back();
+    }
   }
-
-  states.clear();
 }
 
 void PrintAns(pii& state){
@@ -112,7 +126,9 @@ void Solve(){
     AddNewState(states, new_states, z);
     AddNewState(states, new_states, -z);
 
-    TransferStates(new_states, states);
+    states.clear();
+    RemoveRedundantStates(new_states);
+    swap(new_states, states);
   }
 
   if(states.empty()){
