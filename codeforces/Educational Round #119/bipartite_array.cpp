@@ -15,7 +15,7 @@ void Reset(){
 }
 
 void AddNewState(vector<pii>& new_states, int x, int y, int z){
-  if(z < y){
+  if(y != INT_MIN && z < y){
     return;
   }
 
@@ -31,38 +31,9 @@ void AddNewState(vector<pii>& states, vector<pii>& new_states, int z){
   }
 }
 
-void RemoveRedundantStates1Dimension(vector<pii>& states){
-  for(auto [x, y]: states){
-    if(x == INT_MIN || y == INT_MAX){
-      continue;
-    }
-
-    auto it = M.find(x);
-    if(it == M.end()){
-      M[x] = y;
-    }
-    else{
-      it->second = min(it->second, y);
-    }
-  }
-
-  states.clear();
-  for(pii p: M){
-    states.push_back(p);
-  }
-
-  M.clear();
-}
-
-void SwapDimensions(vector<pii>& states){
-  for(pii& state: states){
-    swap(state.first, state.second);
-  }
-}
-
 bool IsRedundant(vector<pii>& states, pii& state){
   int c = 0;
-
+ 
   auto [xi, yi] = state;
   for(auto [xj, yj]: states){
     if(xj == xi && yj == yi){
@@ -71,27 +42,23 @@ bool IsRedundant(vector<pii>& states, pii& state){
         return true;
       }
     }
-
-    if(yi == INT_MIN || yj == INT_MIN){
-      continue;
-    }
-
+ 
     if(xj == xi && yj < yi){
       return true;
     }
-
+ 
     if(yj == yi && xj < xi){
       return true;
     }
   }
-
+ 
   return false;
 }
-
+ 
 void RemoveRedundantStates(vector<pii>& states){
   sort(states.begin(), states.end());
   states.erase(unique(states.begin(), states.end()), states.end());
-
+ 
   for(int i = 0; i < states.size(); ++i){
     if(IsRedundant(states, states[i])){
       swap(states[i], states.back());
@@ -128,7 +95,7 @@ void Solve(){
 
     states.clear();
     RemoveRedundantStates(new_states);
-    swap(new_states, states);
+    swap(states, new_states);
   }
 
   if(states.empty()){
