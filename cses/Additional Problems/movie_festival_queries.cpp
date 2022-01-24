@@ -30,12 +30,12 @@ typedef long long ll;
 int T[LOGN][M + 1];
 
 void PreProcess(){
-  for(int i = N - 1; i > 0; --i){
+  for(int i = M - 1; i > 0; --i){
     T[0][i] = min(T[0][i], T[0][i + 1]);
   }
 
   for(int k = 1; k < LOGN; ++k){
-    for(int i = 1; i <= N; ++i){
+    for(int i = 1; i <= M; ++i){
       T[k][i] = T[k - 1][T[k - 1][i]];
     }
   }
@@ -57,8 +57,8 @@ int main(){
 
   scanf("%d%d", &n, &q);
 
-  for(int i = 1; i <= N; ++i){
-    T[0][i] = N;
+  for(int i = 1; i <= M; ++i){
+    T[0][i] = M;
   }
 
   while(n--){
