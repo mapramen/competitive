@@ -50,32 +50,23 @@ int GetNext(int state, int d, int f){
 
 vector<tiii> GetR(int i){
   vector<tiii> v;
-  vector<tiii> u;
   for(int j: adj[i]){
-    u.push_back({visited[j], adj[j].size(), j});
-    // v.push_back({adj[j].size(), visited[j], j});
+    v.push_back({adj[j].size(), visited[j], j});
   }
-  sort(u.begin(), u.end());
-
-  for(auto [f, d, j]: u){
-    v.push_back({d, f, j});
-  }
-
-  u.clear();
   return v;
 }
 
-double CalculateScore(int n, int bmc, int moves){
-  double bf = (bmc*1.0 + 1) / n;
-  double sf = (moves*1.0 + 1) /n;
-  double c = 90/sqrt(bf -1);
+double CalculateScore(int n, int base_move_count, int moves){
+  double base_fraction = (base_move_count + 1.0) / n;
+  double solution_fraction = (moves + 1.0) /n;
+  double c = 90 / sqrt(base_fraction -1);
   
-  if(moves<=bmc) {
-    return 100 - c * sqrt(sf -1);
+  if(moves <= base_move_count) {
+    return 100 - c * sqrt(solution_fraction - 1);
   }
 
-  if(moves <= 2*bmc) {
-    return 20 - (10.0*(moves +1))/(bmc + 1);
+  if(moves <= 2 * base_move_count) {
+    return 20 - 10.0 * (moves + 1) / (base_move_count + 1);
   }
   
   return 0;
@@ -90,7 +81,7 @@ void DoOneIteration(int n, int start, int base_move_count){
   int state = 0, unvisited_count = n - 1, moves = 0;
   visited[start] = true;
 
-  for( ; moves <= 2 * base_move_count && unvisited_count != 0; ++moves){
+  for( ; moves <= 4 * n && unvisited_count != 0; ++moves){
     vector<tiii> v = GetR(start);
 
     int k = uid(rng) % v.size();
@@ -108,11 +99,7 @@ void DoOneIteration(int n, int start, int base_move_count){
     v.clear();
   }
 
-  if(unvisited_count != 0){
-    return;
-  }
-
-  double score = CalculateScore(n, base_move_count, moves);
+  double score = unvisited_count != 0 ? 0 : CalculateScore(n, base_move_count, moves);
   for(int vstate: states){
     auto [avg, cnt] = scores[vstate];
     avg *= cnt;
@@ -121,8 +108,10 @@ void DoOneIteration(int n, int start, int base_move_count){
     scores[vstate] = {avg, cnt};
   }
 
-  for(auto [astate, d, f, bstate]: transitions){
-    possibleMoves[astate].insert({d, f});
+  if(unvisited_count == 0){
+    for(auto [astate, d, f, bstate]: transitions){
+      possibleMoves[astate].insert({d, f});
+    }
   }
 }
 
