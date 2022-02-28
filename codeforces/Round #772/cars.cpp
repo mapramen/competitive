@@ -6,11 +6,14 @@ typedef long long ll;
 
 #define pii pair<int,int>
 #define pll pair<ll,ll>
+#define tici tuple<int,char,int>
 #define N 200001
 
 vector<vector<pii>> adj(N);
-int color[N];
+vector<vector<int>> tAdj(N);
+int color[N], X[N], inDegrees[N];
 bool visited[N];
+queue<int> Q;
 
 bool DFS(int i, int ci){
   if(visited[i]){
@@ -28,6 +31,48 @@ bool DFS(int i, int ci){
   return ans;
 }
 
+void CheckAndPush(int i){
+  if(inDegrees[i] == 0){
+    Q.push(i);
+  }
+}
+
+bool Process(int n){
+  for(int i = 1; i <= n; ++i){
+    if(!DFS(i, color[i])){
+      return false;
+    }
+  }
+
+  for(int i = 1; i <= n; ++i){
+    for(auto [j, w]: adj[i]){
+      if(color[i] == (w != 1)){
+        tAdj[i].push_back(j);
+        ++inDegrees[j];
+      }
+    }
+  }
+
+  for(int i = 1; i <= n; ++i){
+    CheckAndPush(i);
+  }
+
+  int c = n;
+  while(!Q.empty()){
+    int i = Q.front();
+    Q.pop();
+
+    X[i] = c--;
+
+    for(int j: tAdj[i]){
+      --inDegrees[j];
+      CheckAndPush(j);
+    }
+  }
+
+  return c == 0;
+}
+
 int main(){
   int n, m;
   scanf("%d%d", &n, &m);
@@ -39,52 +84,14 @@ int main(){
     adj[j].push_back({i, w - 1});
   }
 
-  for(int i = 1; i <= n; ++i){
-    if(!DFS(i, color[i])){
-      printf("NO\n");
-      return 0;
-    }
-  }
-
-  bool sandwichedColor = false;
-  for(int i = 1; i <= n; ++i){
-    bool attract = false, repel = false;
-    for(auto [j, w]: adj[i]){
-      attract = attract || w == 1;
-      repel = repel || w == 0;
-    }
-    
-    if(attract && repel){
-      sandwichedColor = color[i];
-      break;
-    }
-  }
-
-  vector<pair<char,int>> ans;
-  for(int i = 1, mc = 0, lc = -n, rc = n; i <= n; ++i){
-    if(color[i] == sandwichedColor){
-      ans.push_back({'L', ++mc});
-      continue;
-    }
-
-    bool attract = false, repel = false;
-    for(auto [j, w]: adj[i]){
-      attract = attract || w == 1;
-      repel = repel || w == 0;
-    }
-
-    if(attract && repel){
-      printf("NO\n");
-      return 0;
-    }
-
-    int x = attract ? --lc : ++rc;
-    ans.push_back({'R', x});
+  if(!Process(n)){
+    printf("NO\n");
+    return 0;
   }
 
   printf("YES\n");
-  for(auto [c, x]: ans){
-    printf("%c %d\n", c, x);
+  for(int i = 1; i <= n; ++i){
+    printf("%c %d\n", color[i] ? 'R' : 'L', X[i]);
   }
 
   return 0;
