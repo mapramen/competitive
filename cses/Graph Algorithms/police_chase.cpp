@@ -166,9 +166,6 @@ int main(){
   for(int i = 0; i < n; ++i){
     for(auto edge: pushRelabel.G[i]){
       int j = edge.to;
-      if(i > j){
-        continue;
-      }
       if(visited[i] && !visited[j]){
         printf("%d %d\n", i + 1, j + 1);
       }
