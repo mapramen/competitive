@@ -72,26 +72,45 @@ def RunCases():
     Output("{} {}".format(N, K))
 
     # Construct a graph in adj.
-    correct_total_edges = 0
-    dense_vertex_count = 10
-    degrees = []
-    while correct_total_edges == 0 or correct_total_edges % 2 == 1:
-      degrees = [random.randint(1, 5) for _ in range(N - dense_vertex_count)] + [random.randint(N // 2, N - 1) for _ in range(dense_vertex_count)]
-      random.shuffle(degrees)
-      correct_total_edges = sum(degrees)
-
-    correct_total_edges = correct_total_edges // 2
-    
-    # print(f"correct_total_edges = {correct_total_edges}")
+    dense_vertex_count = 20
+    is_dense_vertex = [False for _ in range(N - dense_vertex_count)] + [True for _ in range(dense_vertex_count)]
+    random.shuffle(is_dense_vertex)
     
     adj_set = [set() for _ in range(N)]
     adj = [[] for _ in range(N)]
+
+    maximum_sparse_degree = 3
+    minimum_dense_degree = N // 2
+    
+    for i in range(N):
+      degree = random.randint(minimum_dense_degree, N - 1) if is_dense_vertex[i] else random.randint(1, maximum_sparse_degree)
+      # print(f"i = {i} degree = {degree} len = {len(adj[i])}")
+      if is_dense_vertex[i]:
+        order = [x for x in range(N)]
+        random.shuffle(order)
+        while len(adj[i]) < degree:
+          j = order.pop()
+          if j == i or j in adj_set[i]:
+            continue
+          adj_set[i].add(j), adj_set[j].add(i)
+          adj[i].append(j), adj[j].append(i)
+      else:
+        while len(adj[i]) < degree:
+          j = random.randint(0, N - 1)
+          if j == i or j in adj_set[i]:
+            continue
+          adj_set[i].add(j), adj_set[j].add(i)
+          adj[i].append(j), adj[j].append(i)
+      # if i % 1000 == 0:
+      #   print(f"Satisfied {i}")
+
+    correct_total_edges = sum([len(x) for x in adj]) // 2
 
     # Play the game.
     where = random.randint(0,N-1)
     for move_number in range(K+1):
       # Output current room number (1-based) and number of adjacent passages.
-      Output("{} {}".format(where+1, degrees[where]))
+      Output("{} {}".format(where+1, len(adj[where])))
 
       # Get the user's move.
       try:
@@ -125,15 +144,7 @@ def RunCases():
         # The user took a random exit.
         if len(move) != 1:
           raise Error(WRONG_NUM_TOKENS_ERROR(1,len(move)))
-        i = random.randint(0, degrees[where] - 1)
-        i = min(i, len(adj[where]))
-        while i == len(adj[where]):
-          to = random.randint(0, N - 1)
-          if to in adj_set[where] or len(adj[to]) == degrees[to]:
-            continue
-          adj_set[where].add(to), adj_set[to].add(where)
-          adj[where].append(to), adj[to].append(where)
-        # print(where, degrees[where], len(adj[where]), i, file=sys.stderr, flush=True)
+        i = random.randint(0, len(adj[where]) - 1)
         where = adj[where][i]
       elif move[0] == "T":
         # The user teleported to a room.
