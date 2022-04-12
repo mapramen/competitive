@@ -11,7 +11,8 @@ typedef long long ll;
 #define M 102
 
 vector<vector<int>> adj(N);
-int dp[M][N];
+int dp[N];
+bool ans[M][N];
 
 vector<int> Int2Vec(int n){
   vector<int> v(B);
@@ -42,12 +43,6 @@ vector<int> GetMoves(int n){
   return ans;
 }
 
-void Initialise(){
-  for(int i = 0; i < N; ++i){
-    adj[i] = GetMoves(i);
-  }
-}
-
 bool Calculate(int m, int n){
   if(m == 0){
     return false;
@@ -73,7 +68,27 @@ bool Calculate(int m, int n){
     }
   }
 
+  printf("k = %d: ", m);
+  for(int i = 0; i < N; ++i){
+    if(dp[1][i] <= i){
+      continue;
+    }
+
+    printf("%d-", i);
+    for( ; i < N && dp[1][i] > i; ++i);
+    --i;
+    printf("%d ", i);
+  }
+  printf("\n");
+
   return dp[1][n] > n;
+}
+
+
+void Initialise(){
+  for(int i = 0; i < N; ++i){
+    adj[i] = GetMoves(i);
+  }
 }
 
 bool Solve(){
@@ -84,6 +99,10 @@ bool Solve(){
 
 int main(){
   Initialise();
+
+  for(int k = 1; k <= 100; ++k){
+    Calculate(k, 0);
+  }
 
   int t;
   scanf("%d", &t);
