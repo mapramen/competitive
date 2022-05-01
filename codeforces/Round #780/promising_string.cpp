@@ -21,7 +21,6 @@ tree_order_statistics_node_update>
 ordered_set;
 
 char s[N];
-int a[N];
 ordered_set S[B];
 
 int GetMod3(int x){
@@ -32,18 +31,20 @@ ll Solve(){
   int n;
   scanf("%d%s", &n, s);
 
-  for(int i = 1, x = 0; i <= n; ++i){
-    x += s[i - 1] == '-' ? 1 : -1;
-    a[i] = x;
-    S[GetMod3(x)].insert({x, i});
-  }
+  S[0].insert({0, 0});
 
   ll ans = 0;
-  for(int i = 1; i <= n; ++i){
-    ordered_set& T = S[GetMod3(a[i - 1])];
-    ans += (T.size() - T.order_of_key({a[i - 1], 0}));
-    
-    S[GetMod3(a[i])].erase({a[i], i});
+  for(int i = 1, x = 0; i <= n; ++i){
+    x += s[i - 1] == '-' ? 1 : -1;
+
+    ordered_set& T = S[GetMod3(x)];
+
+    ans += T.order_of_key({x, i});
+    T.insert({x, i});
+  }
+
+  for(int k = 0; k < B; ++k){
+    S[k].clear();
   }
 
   return ans;
