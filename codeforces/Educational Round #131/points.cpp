@@ -6,44 +6,46 @@ typedef long long ll;
 
 #define pii pair<int,int>
 #define pll pair<ll,ll>
-#define B 3
+#define B 6
 #define N 200000
 #define M (1 << 19)
 
 bool present[N + 1];
-ll null[B][B] = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-ll identity[B][B] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-ll pls[B][B] = {{1, 2, 1}, {0, 1, 1}, {0, 0, 1}};
-ll mns[B][B] = {{1, -2, 1}, {0, 1, -1}, {0, 0, 1}};
-ll T[B][B];
-ll lazy_value[M][B][B], value[M][B][B];
+ll null[B] = {0, 0, 0, 0, 0, 0};
+ll identity[B] = {1, 0, 0, 1, 0, 1};
+ll pls[B] = {1, 2, 1, 1, 1, 1};
+ll mns[B] = {1, -2, 1, 1, -1, 1};
+ll T[B];
+ll lazy_value[M][B], value[M][B];
 
-void Set(ll des[B][B], ll src[B][B]){
+bool IsSame(ll a[B], ll b[B]){
   for(int i = 0; i < B; ++i){
-    for(int j = i; j < B; ++j){
-      des[i][j] = src[i][j];
+    if(a[i] != b[i]){
+      return false;
     }
+  }
+  return true;
+}
+
+void Set(ll des[B], ll src[B]){
+  for(int i = 0; i < B; ++i){
+    des[i] = src[i];
   }
 }
 
-void Add(ll a[B][B], ll b[B][B], ll c[B][B]){
+void Add(ll a[B], ll b[B], ll c[B]){
   for(int i = 0; i < B; ++i){
-    for(int j = i; j < B; ++j){
-      c[i][j] = a[i][j] + b[i][j];
-    }
+    c[i] = a[i] + b[i];
   }
 }
 
-void Multiply(ll a[B][B], ll b[B][B], ll c[B][B]){
-  for(int i = 0; i < B; ++i){
-    for(int j = i; j < B; ++j){
-      ll ans = 0;
-      for(int k = 0; k < B; ++k){
-        ans += a[i][k] * b[k][j];
-      }
-      T[i][j] = ans;
-    }
-  }
+void Multiply(ll a[B], ll b[B], ll c[B]){
+  T[0] = a[0] * b[0];
+  T[1] = a[0] * b[1] + a[1] * b[3];
+  T[2] = a[0] * b[2] + a[1] * b[4] + a[2] * b[5];
+  T[3] = a[3] * b[3];
+  T[4] = a[3] * b[4] + a[4] * b[5];
+  T[5] = a[5] * b[5];
 
   Set(c, T);
 }
@@ -66,18 +68,24 @@ void BuildSegmentTree(int k, int l, int r){
   Set(lazy_value[k], identity);
 }
 
-void UpdateNode(int k, ll x[B][B]){
+void UpdateNode(int k, ll x[B]){
+  if(IsSame(x, identity)){
+    return;
+  }
   Multiply(x, value[k], value[k]);
   Multiply(x, lazy_value[k], lazy_value[k]);
 }
 
 void LazyUpdateChildren(int k){
+  if(IsSame(lazy_value[k], identity)){
+    return;
+  }
   UpdateNode(2 * k + 1, lazy_value[k]);
   UpdateNode(2 * k + 2, lazy_value[k]);
   Set(lazy_value[k], identity);
 }
 
-void Set(int k, int l, int r, int i, ll x[B][B]){
+void Set(int k, int l, int r, int i, ll x[B]){
   if(i < l || r < i){
     return;
   }
@@ -97,7 +105,7 @@ void Set(int k, int l, int r, int i, ll x[B][B]){
   Combine(k);
 }
 
-void Update(int k, int l, int r, int ql, int qr, ll x[B][B]){
+void Update(int k, int l, int r, int ql, int qr, ll x[B]){
   if(qr < l || r < ql){
     return;
   }
@@ -136,7 +144,7 @@ int main(){
       Set(0, 1, N, i, null);
     }
 
-    ll ans = (value[0][0][2] - value[0][1][2]) / 2;
+    ll ans = (value[0][2] - value[0][4]) / 2;
     printf("%lld\n", ans);
   }
 
