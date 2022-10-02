@@ -79,6 +79,17 @@ int Dis(int i, int j){
   return d[i] + d[j] - 2 * d[k];
 }
 
+int GetFarthestNode(vector<int>& a, int i){
+  int ans = 0, k = i;
+  for(int j: a){
+    int dis = Dis(i, j);
+    if(dis > ans){
+      ans = dis, k = j;
+    }
+  }
+  return k;
+}
+
 void Solve(){
   int n;
   scanf("%d", &n);
@@ -101,28 +112,14 @@ void Solve(){
     int k;
     scanf("%d", &k);
 
-    vector<pii> v(k);
-    for(pii& p: v){
-      scanf("%d", &p.second);
+    vector<int> v(k);
+    for(int& x: v){
+      scanf("%d", &x);
     }
 
-    int u = v.front().second;
-    for(pii& p: v){
-      p.first = Dis(u, p.second);
-    }
-    sort(v.begin(), v.end());
-
-    u = v.back().second;
-    for(pii& p: v){
-      p.first = Dis(u, p.second);
-    }
-    sort(v.begin(), v.end());
-
-    int x = v.front().second, y = v.back().second;
-
+    int x = GetFarthestNode(v, v.front()), y = GetFarthestNode(v, x);
     bool ans = true;
-    for(pii& p: v){
-      int z = p.second;
+    for(int z: v){
       ans = ans && (Dis(x, z) + Dis(y, z) == Dis(x, y));
     }
 
