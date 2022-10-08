@@ -7,7 +7,7 @@ typedef long long ll;
 #define pii pair<int,int>
 #define pll pair<ll,ll>
 #define N 1000
-#define B 12
+#define B 8
 
 mt19937 rnd(random_device{}());
 uniform_int_distribution<int> dis(0, 1);
