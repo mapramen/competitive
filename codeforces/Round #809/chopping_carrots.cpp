@@ -8,12 +8,12 @@ typedef long long ll;
 #define pll pair<ll,ll>
 #define N 100001
 
-int start_index[N], next_index[N];
+vector<vector<int>> V(N);
 int X, Y;
 
 void Reset(){
   for(int x = 0; x < N; ++x){
-    start_index[x] = 0, next_index[x] = 0;
+    V[x].clear();
   }
   X = 0, Y = 0;
 }
@@ -26,17 +26,12 @@ int GetAdjustedValue(int k, int a, int x){
 
 void Add(int k, int a, int x){
   x = GetAdjustedValue(k, a, x);
-  if(start_index[x] == a){
-    return;
-  }
-  
-  next_index[a] = start_index[x];
-  start_index[x] = a;
+  V[x].push_back(a);
   Y = max(Y, x);
 }
 
 int GetAns(){
-  for( ; X < Y && start_index[X] == 0; ++X);
+  for( ; X < Y && V[X].empty(); ++X);
   return Y - X;
 }
 
@@ -56,11 +51,11 @@ int Solve(){
 
   int ans = GetAns();
   for(int x = 1; x <= m; ++x){
-    while(start_index[x - 1] != 0){
-      int a = start_index[x - 1];
-      start_index[x - 1] = next_index[a];
+    for(int a: V[x - 1]){
       Add(k, a, x);
     }
+    V[x - 1].clear();
+    V[x - 1].shrink_to_fit();
     ans = min(ans, GetAns());
   }
 
