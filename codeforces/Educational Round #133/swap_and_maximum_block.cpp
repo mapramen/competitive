@@ -6,16 +6,9 @@ typedef long long ll;
 
 #define pii pair<int,int>
 #define pll pair<ll,ll>
+#define block_data tuple<ll,ll,ll,ll>
 #define B 9
 #define BLOCK_SIZE (1 << B)
-
-struct block_data
-{
-  ll sum;
-  ll ans;
-  ll left_ans;
-  ll right_ans;
-};
 
 int a[BLOCK_SIZE * BLOCK_SIZE];
 vector<vector<block_data>> dp(BLOCK_SIZE, vector<block_data>(BLOCK_SIZE));
@@ -91,10 +84,10 @@ void PreProcess(){
 ll Query(int mask){
   ll s = 0, qans = 0;
   for(int k = 0; k < BLOCK_SIZE; ++k){
-    block_data d = dp[k][mask];
-    qans = max(qans, d.ans);
-    qans = max(qans, s + d.left_ans);
-    s = max(s + d.sum, d.right_ans);
+    auto [block_sum, block_ans, block_left_ans, block_right_ans] = dp[k][mask];
+    qans = max(qans, block_ans);
+    qans = max(qans, s + block_left_ans);
+    s = max(s + block_sum, block_right_ans);
   }
   return qans;
 }
