@@ -6,102 +6,50 @@ typedef long long ll;
 
 #define pii pair<int,int>
 #define pll pair<ll,ll>
-#define block_data tuple<ll,ll,ll,ll>
-#define B 9
-#define BLOCK_SIZE (1 << B)
+#define segment_data tuple<ll,ll,ll,ll>
 
-int a[BLOCK_SIZE * BLOCK_SIZE];
-vector<vector<block_data>> dp(BLOCK_SIZE, vector<block_data>(BLOCK_SIZE));
+segment_data Combine(segment_data left_segment_data, segment_data right_segment_data){
+  auto [left_sum, left_ans, left_prefix_ans, left_suffix_ans] = left_segment_data;
+  auto [right_sum, right_ans, right_prefix_ans, right_suffix_ans] = right_segment_data;
 
-block_data Calculate(int k){
-  int l = k * BLOCK_SIZE, r = l + BLOCK_SIZE;
-  ll sum = 0, ans = 0, left_ans = 0, right_ans = 0;
-
-  for(int i = l; i < r; ++i){
-    sum = max(0ll, sum + a[i]);
-    ans = max(ans, sum);
-  }
-
-  sum = 0;
-  for(int i = l; i < r; ++i){
-    sum += a[i];
-    left_ans = max(left_ans, sum);
-  }
-
-  sum = 0;
-  for(int i = r - 1; i >= l; --i){
-    sum += a[i];
-    right_ans = max(right_ans, sum);
-  }
-
-  return {sum, ans, left_ans, right_ans};
+  return 
+  {
+    left_sum + right_sum,
+    max(left_suffix_ans + right_prefix_ans, max(left_ans, right_ans)),
+    max(left_prefix_ans, left_sum + right_prefix_ans),
+    max(left_suffix_ans + right_sum, right_suffix_ans)
+  };
 }
 
-void Swap(int k, int bit){
-  int l = k * BLOCK_SIZE, r = l + BLOCK_SIZE, bit_mask = (1 << bit);
-  for(int i = l; i < r; ++i){
-    if((i & bit_mask) == 0){
-      continue;
-    }
-    swap(a[i], a[(i ^ bit_mask)]);
-  }
-}
-
-void Swap(int bit){
-  int bit_mask = (1 << bit);
-  for(int i = 0; i < BLOCK_SIZE; ++i){
-    if((i & bit_mask) == 0){
-      continue;
-    }
-    dp[i].swap(dp[(i ^ bit_mask)]);
-  }
-}
-
-void PreProcess(int k, int bit, int mask){
-  if(bit == -1){
-    dp[k][mask] = Calculate(k);
-    return;
+vector<segment_data> GetVersions(vector<int>& a, int k, int i){
+  if(k == 0){
+    return {{a[i], max(0, a[i]), max(0, a[i]), max(0, a[i])}};
   }
 
-  PreProcess(k, bit - 1, 2 * mask);
+  vector<segment_data> A = GetVersions(a, k - 1, i);
+  vector<segment_data> B = GetVersions(a, k - 1, i + (1 << (k - 1)));
 
-  Swap(k, bit);
-  PreProcess(k, bit - 1, 2 * mask + 1);
+  vector<segment_data> C(1 << k);
 
-  Swap(k, bit);
-}
-
-void PreProcess(int k){
-  PreProcess(k, B - 1, 0);
-}
-
-void PreProcess(){
-  for(int k = 0; k < BLOCK_SIZE; ++k){
-    PreProcess(k); 
+  for(int x = 0, y = (1 << (k - 1)); x < (1 << (k - 1)); ++x, ++y){
+    C[x] = Combine(A[x], B[x]);
+    C[y] = Combine(B[x], A[x]);
   }
-}
 
-ll Query(int mask){
-  ll s = 0, qans = 0;
-  for(int k = 0; k < BLOCK_SIZE; ++k){
-    auto [block_sum, block_ans, block_left_ans, block_right_ans] = dp[k][mask];
-    qans = max(qans, block_ans);
-    qans = max(qans, s + block_left_ans);
-    s = max(s + block_sum, block_right_ans);
-  }
-  return qans;
+  return C;
 }
 
 int main(){
   int n;
   scanf("%d", &n);
 
-  for(int i = 0; i < (1 << n); ++i){
-    scanf("%d", &a[i]);
+  vector<int> a(1 << n);
+  for(int& x: a){
+    scanf("%d", &x);
   }
 
-  PreProcess();
-
+  vector<segment_data> T = GetVersions(a, n, 0);
+  
   int q;
   scanf("%d", &q);
 
@@ -109,16 +57,12 @@ int main(){
   while(q--){
     int m;
     scanf("%d", &m);
-
-    if(m >= B){
-      m -= B;
-      Swap(m);
-    }
-    else{
-      mask ^= (1 << m);
-    }
-
-    printf("%lld\n", Query(mask));
+    
+    mask ^= (1 << m);
+    
+    auto [_, ans, __, ___] = T[mask];
+    printf("%lld\n", ans);
   }
+
   return 0;
 }
