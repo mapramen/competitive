@@ -8,7 +8,7 @@ typedef long long ll;
 #define pll pair<ll,ll>
 #define N (1 << 20)
 
-int a[N], b[N];
+int a[N];
 
 void SubMaskSum(int n){
   for(int k = __builtin_ctz(n); k != -1; --k){
@@ -33,7 +33,6 @@ int main(){
 
   for(int i = 0; i < n; ++i){
     scanf("%d", &a[i]);
-    b[i] = a[i];
   }
 
   int m = 1;
@@ -48,10 +47,6 @@ int main(){
   }
 
   SuperMaskSum(m);
-
-  for(int i = n; i < m; ++i){
-    a[i] = b[i];
-  }
 
   SubMaskSum(m);
 
