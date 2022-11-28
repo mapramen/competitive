@@ -141,10 +141,6 @@ void Solve(){
 
   PreProcess(n);
 
-  for(int i = 1; i <= n; ++i){
-    // printf("i = %d a = %d b = %d c = %d\n", i, a[i], b[i], c[i]);
-  }
-
   bool valid = true;
   for(int i = 1; i <= n; ++i){
     valid = valid && (b[i] <= c[i]);
@@ -154,8 +150,6 @@ void Solve(){
   }
 
   int d1 = GetLeftEndpoint(n, K), d2 = GetRightEndpoint(n, K);
-
-  // printf("valid = %d d1 = %d d2 = %d\n", valid, d1, d2);
 
   while(q--){
     int d;
