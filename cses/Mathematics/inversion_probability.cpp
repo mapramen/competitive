@@ -24,20 +24,13 @@ typedef long long ll;
 #define pii pair<int, int>
 #define pll pair<ll, ll>
 #define N 101
-#define PRECISION 0.000001
 
 int a[N];
 
-int NumberOfInversePair(int x, int y) {
-  if (x <= y) {
-    return x * (x - 1) / 2;
-  }
-
-  return y * (x - y) + NumberOfInversePair(y, y);
-}
-
-double ProbabilityOfInversePair(int x, int y) {
-  return 1.0 * NumberOfInversePair(x, y) / (x * y);
+long double ProbabilityOfInversePair(int x, int y) {
+  long double ans = x <= y ? x * (x - 1) / 2 : y * (2 * x - y - 1) / 2;
+  ans /= (x * y);
+  return ans;
 }
 
 int main() {
@@ -48,15 +41,15 @@ int main() {
     cin >> a[i];
   }
 
-  double ans = 0;
+  long double ans = 0;
   for (int i = 1; i <= n; ++i) {
     for (int j = i + 1; j <= n; ++j) {
       ans += ProbabilityOfInversePair(a[i], a[j]);
     }
   }
-  ans = round(ans / PRECISION) * PRECISION;
+  ans = nearbyint(ans * 1000000) / 1000000;
 
-  printf("%lf\n", ans);
+  printf("%Lf\n", ans);
 
   return 0;
 }
