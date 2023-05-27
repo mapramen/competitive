@@ -6,123 +6,99 @@ typedef long long ll;
 
 #define pii pair<int, int>
 #define pll pair<ll, ll>
-#define N 500001
-#define B 26
+#define N 100001
 
-char s[N];
-vector<vector<int>> adj(N);
-int cnt[N], qans[N];
-bool visited[N];
+struct state {
+  int len, link;
+  int cnt = 0;
+  ll subtree_cnt = 0;
+  map<char, int> next;
+};
 
-//----------------- Aho-Corasick Automation Start -----------------//
-int T[B][N], pi[N], nxt;
-vector<vector<int>> string_indexes(N);
+state st[N * 2];
+int sz, last;
 
-void Reset() {
-  for (int k = 0; k < B; ++k) {
-    for (int i = 0; i < N; ++i) {
-      T[k][i] = 0;
-    }
-  }
-
-  for (int i = 0; i < N; ++i) {
-    pi[i] = 0, cnt[i] = false;
-  }
-
-  nxt = 0;
+void sa_init() {
+  st[0].len = 0;
+  st[0].link = -1;
+  sz++;
+  last = 0;
 }
 
-void AddString(string& s, int string_index) {
-  int i = 0;
-  for (char c : s) {
-    int k = c - 'a';
-    if (T[k][i] == 0) {
-      T[k][i] = ++nxt;
-    }
-    i = T[k][i];
+void sa_extend(char c) {
+  int cur = sz++;
+  st[cur].len = st[last].len + 1;
+  st[cur].cnt = 1;
+  int p = last;
+  while (p != -1 && !st[p].next.count(c)) {
+    st[p].next[c] = cur;
+    p = st[p].link;
   }
-  string_indexes[i].push_back(string_index);
-}
-
-void BuildAutomation() {
-  queue<int> Q;
-
-  Q.push(0);
-
-  while (!Q.empty()) {
-    int v = Q.front();
-    Q.pop();
-
-    int pv = pi[v];
-
-    for (int k = 0; k < B; ++k) {
-      int u = T[k][v];
-      if (u != 0) {
-        if (v != 0) {
-          pi[u] = T[k][pv];
-        }
-        Q.push(u);
-      } else {
-        T[k][v] = T[k][pv];
+  if (p == -1) {
+    st[cur].link = 0;
+  } else {
+    int q = st[p].next[c];
+    if (st[p].len + 1 == st[q].len) {
+      st[cur].link = q;
+    } else {
+      int clone = sz++;
+      st[clone].len = st[p].len + 1;
+      st[clone].next = st[q].next;
+      st[clone].link = st[q].link;
+      while (p != -1 && st[p].next[c] == q) {
+        st[p].next[c] = clone;
+        p = st[p].link;
       }
+      st[q].link = st[cur].link = clone;
     }
   }
+  last = cur;
 }
-//------------------ Aho-Corasick Automation End ------------------//
+
+char s[5 * N];
 
 string ReadString() {
   scanf("%s", s);
   return string(s);
 }
 
-int DFS(int i) {
-  if (visited[i]) {
-    return cnt[i];
-  }
-
-  visited[i] = true;
-  for (int j : adj[i]) {
-    cnt[i] += DFS(j);
-  }
-
-  return cnt[i];
-}
-
 int main() {
   string s = ReadString();
 
-  int n;
-  scanf("%d", &n);
-
-  Reset();
-
-  for (int i = 1; i <= n; ++i) {
-    string t = ReadString();
-    AddString(t, i);
+  sa_init();
+  for (char c : s) {
+    sa_extend(c);
   }
 
-  BuildAutomation();
-
-  for (int i = 0, v = 0; i < s.size(); ++i) {
-    int k = s[i] - 'a';
-    v = T[k][v];
-    ++cnt[v];
+  int n = s.size();
+  vector<vector<int>> V(n + 1);
+  for (int i = 0; i <= sz; i++) {
+    V[st[i].len].push_back(i);
   }
 
-  for (int v = 1; v <= nxt; ++v) {
-    adj[pi[v]].push_back(v);
-  }
-
-  DFS(0);
-
-  for (int v = nxt; v > 0; --v) {
-    for (int string_index : string_indexes[v]) {
-      qans[string_index] = cnt[v];
+  for (int len = n; len > 0; --len) {
+    for (int i : V[len]) {
+      st[st[i].link].cnt += st[i].cnt;
     }
   }
+  st[0].cnt = 0;
 
-  for (int i = 1; i <= n; ++i) {
-    printf("%d\n", qans[i]);
+  int q;
+  scanf("%d", &q);
+
+  while (q--) {
+    string t = ReadString();
+
+    int cur = 0;
+    for (char c : t) {
+      if (!st[cur].next.count(c)) {
+        cur = 0;
+        break;
+      }
+      cur = st[cur].next[c];
+    }
+
+    printf("%d\n", st[cur].cnt);
   }
 
   return 0;

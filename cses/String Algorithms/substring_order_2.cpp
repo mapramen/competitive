@@ -74,11 +74,6 @@ int main() {
   for (int len = n; len > 0; --len) {
     for (int i : V[len]) {
       st[st[i].link].cnt += st[i].cnt;
-
-      st[i].subtree_cnt = st[i].cnt;
-      for (auto [c, j] : st[i].next) {
-        st[i].subtree_cnt += st[j].subtree_cnt;
-      }
     }
   }
   st[0].cnt = 0;
