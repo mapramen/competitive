@@ -8,144 +8,70 @@ typedef long long ll;
 #define pll pair<ll, ll>
 #define N 200001
 
-int INF = 1E9;
-
 mt19937 rnd(random_device{}());
 uniform_int_distribution<int> dis(1, INT_MAX);
 
 struct Node {
   int priority;
-  int count;
+  int size;
   char value;
 
-  Node* leftChild;
-  Node* rightChild;
+  Node* left;
+  Node* right;
+
+  Node(char c)
+      : priority(dis(rnd)), size(1), value(c), left(NULL), right(NULL) {
+  }
 };
 
-int GetCount(Node* a) {
-  return a == NULL ? 0 : a->count;
+inline int size(Node* treap) {
+  return treap ? treap->size : 0;
 }
 
-void RefreshNodeData(Node* a) {
-  if (a == NULL) {
-    return;
-  }
-  a->count = GetCount(a->leftChild) + 1 + GetCount(a->rightChild);
-}
-
-Node* Meld(Node* a, Node* b) {
-  if (a == NULL) {
-    return b;
-  }
-
-  if (b == NULL) {
-    return a;
-  }
-
-  Node* c;
-  if (a->priority < b->priority) {
-    a->rightChild = Meld(a->rightChild, b);
-    c = a;
-  } else {
-    b->leftChild = Meld(a, b->leftChild);
-    c = b;
-  }
-
-  RefreshNodeData(c);
-  return c;
-}
-
-Node* ReBalance(Node* root, int index) {
-  if (root == NULL) {
-    return NULL;
-  }
-
-  int cnt = GetCount(root->leftChild) + 1;
-
-  if (index < cnt) {
-    Node* leftChild = ReBalance(root->leftChild, index);
-    if (leftChild->priority < root->priority) {
-      root->leftChild = leftChild->rightChild;
-      RefreshNodeData(root);
-
-      leftChild->rightChild = root;
-      root = leftChild;
-    } else {
-      root->leftChild = leftChild;
-    }
-  }
-
-  if (index > cnt) {
-    Node* rightChild = ReBalance(root->rightChild, index - cnt);
-    if (rightChild->priority < root->priority) {
-      root->rightChild = rightChild->leftChild;
-      RefreshNodeData(root);
-
-      rightChild->leftChild = root;
-      root = rightChild;
-    } else {
-      root->rightChild = rightChild;
-    }
-  }
-
-  RefreshNodeData(root);
-  return root;
-}
-
-Node* InsertNode(Node* root, int index, char value) {
-  if (root == NULL) {
-    Node* new_node = new Node();
-    new_node->priority = dis(rnd);
-    new_node->value = value;
-    new_node->leftChild = NULL;
-    new_node->rightChild = NULL;
-
-    RefreshNodeData(new_node);
-    return new_node;
-  }
-
-  int cnt = GetCount(root->leftChild) + 1;
-  if (cnt < index) {
-    root->rightChild = InsertNode(root->rightChild, index - cnt, value);
-  } else {
-    root->leftChild = InsertNode(root->leftChild, index, value);
-  }
-
-  RefreshNodeData(root);
-  return root;
-}
-
-void AssignMostPriority(Node* root, int index) {
-  if (root == NULL) {
+inline void RefreshData(Node* treap) {
+  if (treap == NULL) {
     return;
   }
 
-  int cnt = GetCount(root->leftChild) + 1;
+  treap->size = size(treap->left) + 1 + size(treap->right);
+}
 
-  if (cnt == index) {
-    root->priority = INT_MIN;
-  } else if (cnt < index) {
-    AssignMostPriority(root->rightChild, index - cnt);
-  } else {
-    AssignMostPriority(root->leftChild, index);
+pair<Node*, Node*> Split(Node* treap, int index) {
+  if (treap == NULL) {
+    return {NULL, NULL};
   }
+
+  if (size(treap->left) < index) {
+    pair<Node*, Node*> rightSplit = Split(treap->right, index - size(treap->left) - 1);
+    treap->right = rightSplit.first;
+    RefreshData(treap);
+    return {treap, rightSplit.second};
+  }
+
+  pair<Node*, Node*> leftSplit = Split(treap->left, index);
+  treap->left = leftSplit.second;
+  RefreshData(treap);
+  return {leftSplit.first, treap};
 }
 
-pair<Node*, Node*> Split(Node* root, int index) {
-  AssignMostPriority(root, index);
-  root = ReBalance(root, index);
+Node* Meld(Node* left, Node* right) {
+  if (left == NULL) {
+    return right;
+  }
 
-  Node* left = root->leftChild;
+  if (right == NULL) {
+    return left;
+  }
 
-  root->leftChild = NULL;
-  root->priority = 0;
-  RefreshNodeData(root);
+  if (left->priority < right->priority) {
+    left->right = Meld(left->right, right);
+    RefreshData(left);
+    return left;
+  }
 
-  return {left, root};
-}
-
-Node* Insert(Node* root, int index, char value) {
-  return ReBalance(InsertNode(root, index, value), index);
+  right->left = Meld(left, right->left);
+  RefreshData(right);
+  return right;
 }
 
 void Print(Node* root) {
@@ -153,9 +79,9 @@ void Print(Node* root) {
     return;
   }
 
-  Print(root->leftChild);
+  Print(root->left);
   printf("%c", root->value);
-  Print(root->rightChild);
+  Print(root->right);
 }
 
 char s[N];
@@ -168,21 +94,17 @@ int main() {
 
   Node* root = NULL;
   for (int i = 1; i <= n; ++i) {
-    root = Insert(root, i, s[i - 1]);
+    root = Meld(root, new Node(s[i - 1]));
   }
 
   while (q--) {
     int l, r;
     scanf("%d%d", &l, &r);
 
-    if (r == n) {
-      continue;
-    }
+    pair<Node*, Node*> leftSplit = Split(root, l - 1);
+    pair<Node*, Node*> rightSplit = Split(leftSplit.second, r - l + 1);
 
-    auto [l1, r1] = Split(root, l);
-    auto [l2, r2] = Split(r1, r - l + 2);
-
-    root = Meld(l1, Meld(r2, l2));
+    root = Meld(Meld(leftSplit.first, rightSplit.second), rightSplit.first);
   }
 
   Print(root);
