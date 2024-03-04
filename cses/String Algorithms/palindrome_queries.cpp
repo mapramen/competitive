@@ -51,7 +51,7 @@ int Query(int T[], int i, int j) {
 int QueryHash(int h[], int i, int j) {
   int ans = Query(h, i, j);
   ans = (1LL * ans * invp[i]) % MOD;
-  return ans;
+  return (ans + MOD) % MOD;
 }
 
 int main() {
