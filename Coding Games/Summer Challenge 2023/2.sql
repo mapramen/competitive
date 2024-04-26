@@ -1,0 +1,16 @@
+SELECT
+	agent.NAME,
+	SCORE
+FROM
+	agent
+	JOIN (
+		SELECT
+			TOP 10 RECRUITERID,
+			COUNT(*) AS SCORE
+		FROM
+			mutant
+		GROUP BY
+			RECRUITERID
+		ORDER BY
+			SCORE DESC
+	) as mutants ON agent.AGENTID = mutants.RECRUITERID;
