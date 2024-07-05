@@ -1,10 +1,10 @@
 from heapq import heappop, heappush
 
 heap = []
-for x in range(2, 10000):
+for x in range(2, 100):
 	heappush(heap, (x, x))
 
-limit = 1000
+limit = 30
 i = 0
 while i < limit:
 	y, x = heappop(heap)
