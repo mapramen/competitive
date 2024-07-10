@@ -1,8 +1,11 @@
+import functools
 from math import ceil, log
 
+@functools.cache
 def is_prime(n):
 	return all(n % i != 0 for i in range(2, int(n ** 0.5) + 1))
 
+@functools.cache
 def get_nth_prime(n):
 	i = 2
 	while True:
