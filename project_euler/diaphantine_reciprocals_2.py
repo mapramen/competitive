@@ -1,5 +1,5 @@
 import functools
-from math import ceil, log
+from math import ceil
 
 @functools.cache
 def is_prime(n):
@@ -16,48 +16,41 @@ def get_nth_prime(n):
 		i += 1
 	return i
 
-def get_intial_answer_log_threshold(limit):
+def get_initial_answer_threshold(limit):
 	limit = 2 * limit - 1
 
-	ans = 0
+	ans = 1
 	
 	i = 1
-	while 3 ** i <= limit:
-		ans += log(get_nth_prime(i))
+	while 3 ** i < limit:
+		ans *= get_nth_prime(i)
 		i += 1
+	ans *= get_nth_prime(i)
 	
 	return ans
 
-def solve(limit, ans_log_threshold, ans_log, i = 1):
+def solve(limit, ans_threshold, ans, i = 1):
 	if limit % 2 == 0:
 		limit += 1
 
 	if limit == 1:
-		return (ans_log, [])
+		return ans
 	
 	p = get_nth_prime(i)
-	log_p = log(p)
-	
-	factors = []
 
 	for j in range(3, limit + 1, 2):
-		ans_log += log_p
-		if ans_log >= ans_log_threshold:
+		ans *= p
+		if ans >= ans_threshold:
 			break
-		result_ans_log_j, result_factors_j = solve(ceil(limit / j), ans_log_threshold, ans_log, i + 1)
-		if result_ans_log_j >= ans_log_threshold:
+		ansj = solve(ceil(limit / j), ans_threshold, ans, i + 1)
+		if ansj >= ans_threshold:
 			continue
-		ans_log_threshold = result_ans_log_j
-		factors = [(p, (j - 1) // 2)] + result_factors_j
+		ans_threshold = ansj
 
-	return ans_log_threshold, factors
+	return ans_threshold
 
 def diaphantine_reciprocals(limit):
-	_, factors = solve(2 * limit - 1, get_intial_answer_log_threshold(limit), 0)
-	ans = 1
-	for factor, power in factors:
-		ans *= factor ** power
-	return ans
+	return solve(2 * limit - 1, get_initial_answer_threshold(limit), 1)
 
 # print(diaphantine_reciprocals(10 ** 3))
 print(diaphantine_reciprocals(4 * 10 ** 6))
