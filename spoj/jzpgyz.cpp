@@ -89,30 +89,27 @@ void Solve() {
 		m = max(m, (int)s.size());
 	}
 
-	vector<vector<int>> V(m + 1);
-	vector<int> a(sz), b(sz);
+	vector<set<int>> C(sz);
 
+	for (int k = 0; k < n; ++k) {
+		int p = 0;
+		for (char c : S[k]) {
+			p = st[p].next[c];
+			C[p].insert(k);
+		}
+	}
+
+	vector<vector<int>> V(m + 1);
 	for (int i = 0; i < sz; ++i) {
 		V[st[i].len].push_back(i);
 	}
 
-	for (const string& s : S) {
-		fill(b.begin(), b.end(), 0);
-
-		int p = 0;
-		for (char c : s) {
-			p = st[p].next[c];
-			b[p] = 1;
-		}
-
-		for (int len = m; len > 0; --len) {
-			for (int i : V[len]) {
-				b[st[i].link] |= b[i];
+	for (int len = m; len > 0; --len) {
+		for (int i : V[len]) {
+			int j = st[i].link;
+			for (int k : C[i]) {
+				C[j].insert(k);
 			}
-		}
-
-		for (int i = 0; i < sz; ++i) {
-			a[i] += b[i];
 		}
 	}
 
@@ -129,7 +126,7 @@ void Solve() {
 			p = st[p].next[c];
 		}
 
-		int ans = p == -1 ? 0 : a[p];
+		int ans = p == -1 ? 0 : C[p].size();
 		printf("%d\n", ans);
 	}
 }
