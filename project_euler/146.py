@@ -33,7 +33,16 @@ def is_prime(n):
 
 present_list = [1, 3, 7, 9, 13, 27]
 
-def check(n):
+def check(primes, n):
+	for p, S in primes.items():
+		if p > n:
+			break
+		if p <= n and n % p in S:
+			return False
+	
+	global checking_count
+	checking_count += 1
+	
 	n = n ** 2
 	for c in range(1, 28):
 		n += 1
@@ -42,11 +51,25 @@ def check(n):
 			return False
 	return True
 
-ans = 0
-for n in range(0, 150 * 10 ** 6, 10):
-	if n % 3 == 0 or n % 7 == 0 or n % 13 == 0 or n % 27 == 0:
-		continue
+def solve(limit):
+	primes = {}
+	for p in range(2, int(limit ** 0.25) + 1):
+		if not is_prime(p):
+			continue
 
-	if check(n):
-		ans += n
-		print(n, ans)
+		S = set()
+		for r in range(p):
+			if any((r ** 2 + c) % p == 0 for c in present_list):
+				S.add(r)
+
+		primes[p] = S
+
+	ans = 0
+	for n in range(0, limit, 10):
+		if check(primes, n):
+			ans += n
+			print(n, ans)
+	print(f'Checking count: {checking_count}')
+
+checking_count = 0
+solve(150 * 10 ** 6)
