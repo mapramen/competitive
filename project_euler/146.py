@@ -43,7 +43,7 @@ def check(n):
 	return True
 
 ans = 0
-for n in range(0, 10 ** 6, 10):
+for n in range(0, 150 * 10 ** 6, 10):
 	if n % 3 == 0 or n % 7 == 0 or n % 13 == 0 or n % 27 == 0:
 		continue
 
