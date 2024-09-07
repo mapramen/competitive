@@ -37,7 +37,7 @@ def check(primes, n):
 	for p, S in primes.items():
 		if p > n:
 			break
-		if p <= n and n % p in S:
+		if n % p in S:
 			return False
 	
 	global checking_count
