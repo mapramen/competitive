@@ -1,3 +1,5 @@
+import functools
+
 def is_prime(n):
 	if n < 2:
 		return False
@@ -33,11 +35,15 @@ def is_prime(n):
 
 present_list = [1, 3, 7, 9, 13, 27]
 
+@functools.cache
+def is_possible(p, r):
+	return not any((r ** 2 + c) % p == 0 for c in present_list)
+
 def check(primes, n):
-	for p, S in primes.items():
+	for p in primes:
 		if p > n:
 			break
-		if n % p in S:
+		if not is_possible(p, n % p):
 			return False
 	
 	global checking_count
@@ -52,17 +58,10 @@ def check(primes, n):
 	return True
 
 def solve(limit):
-	primes = {}
+	primes = []
 	for p in range(2, int(limit ** 0.25) + 1):
-		if not is_prime(p):
-			continue
-
-		S = set()
-		for r in range(p):
-			if any((r ** 2 + c) % p == 0 for c in present_list):
-				S.add(r)
-
-		primes[p] = S
+		if is_prime(p):
+			primes.append(p)
 
 	ans = 0
 	for n in range(0, limit, 10):
