@@ -1,5 +1,3 @@
-from time import sleep
-
 def agp(n, a, b, r):
 	return a * (r ** n - 1) / (r - 1) + b * (n * r ** (n + 1) - (n + 1) * r ** n + 1) / (r - 1) ** 2
 
