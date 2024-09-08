@@ -1,6 +1,3 @@
-from time import sleep
-
-
 def is_prime(n):
 	if n < 2:
 		return False
