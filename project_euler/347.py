@@ -1,4 +1,7 @@
 def largest_prime_divisible_number(n, primes):
+	if n == 1:
+		return 1
+	
 	primes = sorted(primes)
 	nums = [1]
 	candidates = [1 for _ in primes]
@@ -25,7 +28,7 @@ def solve(n):
 	is_prime = [True] * (n + 1)
 
 	is_prime[0] = is_prime[1] = False
-	for i in range(2, n + 1):
+	for i in range(2, int(n ** 0.5) + 1):
 		if not is_prime[i]:
 			continue
 		for j in range(i * i, n + 1, i):
