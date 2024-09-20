@@ -1,28 +1,24 @@
-def largest_prime_divisible_number(n, primes):
-	if n == 1:
-		return 1
-	
-	primes = sorted(primes)
-	nums = [1]
-	candidates = [1 for _ in primes]
-	candidate_indexes = [0 for _ in primes]
-
-	while True:
-		min_candidate = min(candidates)
-		if min_candidate > n:
-			break
-
-		nums.append(min_candidate)
-
-		for i, prime in enumerate(primes):
-			if min_candidate == candidates[i]:
-				candidate_indexes[i] += 1
-				candidates[i] = prime * nums[candidate_indexes[i]]
-
-	return nums[-1]
-
 def largest_divisible_number(n, a, b):
-	return 0 if n < a * b else a * b * largest_prime_divisible_number(n // (a * b), [a, b])
+	if n < a * b:
+		return 0
+	
+	n //= (a * b)
+
+	if n == 1:
+		return a * b
+	
+	x, y, ans = 1, 1, 1
+	while x <= n and y >= 1:
+		while x * y <= n:
+			y *= b
+		
+		while x * y > n:
+			y //= b
+
+		ans = max(ans, a * b * x * y)
+		x *= a
+
+	return ans
 
 def solve(n):
 	is_prime = [True] * (n + 1)
