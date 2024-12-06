@@ -20,10 +20,13 @@ double Dist2(pll a, pll b) {
 	return sqrt(dx * dx + dy * dy);
 }
 
-double CalculateMinDistance(vector<pll>& points, pll p) {
+double CalculateMinDistance(vector<pll>& points, pll p, double lower_limit) {
 	double min_dist = Dist2(p, points.front());
 	for (auto& q : points) {
 		min_dist = min(min_dist, Dist2(p, q));
+		if (min_dist < lower_limit) {
+			break;
+		}
 	}
 	return min_dist;
 }
@@ -41,13 +44,15 @@ pair<double, pll> GetInitialBestGuess(vector<pll>& points, ll n, ll m, int k) {
 	uniform_int_distribution<ll> dis_x(0, n);
 	uniform_int_distribution<ll> dis_y(0, m);
 
-	k = 10000;
+	shuffle(points.begin(), points.end(), rnd);
 
-	double max_dist = CalculateMinDistance(points, {0, 0});
+	k = 100000;
+
+	double max_dist = CalculateMinDistance(points, {0, 0}, 0);
 	pll best_point = {0, 0};
 	for (int i = 0; i < k; ++i) {
 		pll p = {dis_x(rnd), dis_y(rnd)};
-		double dist = CalculateMinDistance(points, p);
+		double dist = CalculateMinDistance(points, p, max_dist);
 		if (dist > max_dist) {
 			max_dist = dist;
 			best_point = p;
@@ -72,7 +77,7 @@ pdd Solve() {
 
 	auto [max_dist, best_point] = GetInitialBestGuess(points, n, m, k);
 
-	for (double t = 1e6, alpha = 0.999; t > 1e-6;) {
+	for (double t = max_dist, alpha = 0.999; t > 1e-6;) {
 		int dir = dis_dir(rnd);
 		auto [dx, dy] = directions[dir];
 		pll p = {best_point.first + dx, best_point.second + dy};
@@ -81,7 +86,7 @@ pdd Solve() {
 			continue;
 		}
 
-		double dist = CalculateMinDistance(points, p);
+		double dist = CalculateMinDistance(points, p, 0);
 		if (ShouldReplace(max_dist, dist, t)) {
 			max_dist = dist;
 			best_point = p;
