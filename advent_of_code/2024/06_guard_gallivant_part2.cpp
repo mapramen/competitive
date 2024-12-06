@@ -60,6 +60,30 @@ bool IsStuckInLoop(const vector<string>& s, vector<vector<int>>& visited_directi
 	return ans;
 }
 
+int DFS(vector<string>& s, vector<vector<int>>& visited_direction_mask, int k, int x, int y) {
+	visited_direction_mask[x][y] |= (1 << k);
+
+	const int n = s.size(), m = s.front().size();
+	auto [nx, ny] = GetNextCell(x, y, k);
+	if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+		return 0;
+	}
+
+	if (s[nx][ny] == '#') {
+		return DFS(s, visited_direction_mask, GetNextDirection(k), x, y);
+	}
+
+	int ans = 0;
+
+	if (visited_direction_mask[nx][ny] == 0) {
+		s[nx][ny] = '#';
+		ans = IsStuckInLoop(s, visited_direction_mask, GetNextDirection(k), x, y) ? 1 : 0;
+		s[nx][ny] = '.';
+	}
+
+	return ans + DFS(s, visited_direction_mask, k, nx, ny);
+}
+
 int main() {
 	vector<string> s = ReadMap();
 
@@ -68,20 +92,7 @@ int main() {
 	auto [sx, sy] = GetStartCell(s);
 	vector<vector<int>> visited_direction_mask(n, vector<int>(m));
 
-	int ans = 0;
-	for (int x = 0; x < n; ++x) {
-		for (int y = 0; y < m; ++y) {
-			if (s[x][y] != '.') {
-				continue;
-			}
-
-			s[x][y] = '#';
-			if (IsStuckInLoop(s, visited_direction_mask, 0, sx, sy)) {
-				++ans;
-			}
-			s[x][y] = '.';
-		}
-	}
+	int ans = DFS(s, visited_direction_mask, 0, sx, sy);
 
 	printf("%d\n", ans);
 
