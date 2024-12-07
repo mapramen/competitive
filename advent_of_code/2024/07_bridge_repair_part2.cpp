@@ -24,38 +24,37 @@ pair<ll, vector<ll>> ParseLine(string line) {
 	return {n, numbers};
 }
 
-void CheckAndInsert(unordered_set<ll> &s, ll n, ll x) {
-	if (x <= n) {
-		s.insert(x);
-	}
-}
-
-bool IsValid(ll n, vector<ll> a) {
-	string n_str = to_string(n);
-	unordered_set<ll> s, new_s;
-	s.insert(a[0]);
-
-	for (int i = 1; i < a.size(); ++i) {
-		new_s.clear();
-		for (ll x : s) {
-			CheckAndInsert(new_s, n, x + a[i]);
-			CheckAndInsert(new_s, n, x * a[i]);
-			string t = to_string(x) + to_string(a[i]);
-			if (t.size() < n_str.size() || t.size() == n_str.size() && t <= n_str) {
-				CheckAndInsert(new_s, n, stoll(t));
-			}
-		}
-		s.swap(new_s);
+bool IsValid(const ll n, const vector<ll>& a, const string& n_str, ll x, int i) {
+	if (x > n) {
+		return false;
 	}
 
-	return s.find(n) != s.end();
+	if (i == a.size()) {
+		return x == n;
+	}
+
+	if (IsValid(n, a, n_str, x + a[i], i + 1)) {
+		return true;
+	}
+
+	if (IsValid(n, a, n_str, x * a[i], i + 1)) {
+		return true;
+	}
+
+	string t = to_string(x) + to_string(a[i]);
+	if (t.size() < n_str.size() || t.size() == n_str.size() && t <= n_str) {
+		return IsValid(n, a, n_str, stoll(t), i + 1);
+	}
+
+	return false;
 }
 
 int main() {
 	ll ans = 0;
 	for (string line; getline(cin, line);) {
 		auto [n, a] = ParseLine(line);
-		if (IsValid(n, a)) {
+		const string n_str = to_string(n);
+		if (IsValid(n, a, n_str, a[0], 1)) {
 			ans += n;
 		}
 	}
