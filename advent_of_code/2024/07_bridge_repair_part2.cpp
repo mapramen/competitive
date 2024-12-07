@@ -24,6 +24,12 @@ pair<ll, vector<ll>> ParseLine(string line) {
 	return {n, numbers};
 }
 
+void CheckAndInsert(unordered_set<ll> &s, ll n, ll x) {
+	if (x <= n) {
+		s.insert(x);
+	}
+}
+
 bool IsValid(ll n, vector<ll> a) {
 	string n_str = to_string(n);
 	unordered_set<ll> s, new_s;
@@ -32,15 +38,11 @@ bool IsValid(ll n, vector<ll> a) {
 	for (int i = 1; i < a.size(); ++i) {
 		new_s.clear();
 		for (ll x : s) {
-			new_s.insert(min(n + 1, x + a[i]));
-			new_s.insert(min(n + 1, x * a[i]));
-
+			CheckAndInsert(new_s, n, x + a[i]);
+			CheckAndInsert(new_s, n, x * a[i]);
 			string t = to_string(x) + to_string(a[i]);
-
-			if (t.size() > n_str.size() || t.size() == n_str.size() && t > n_str) {
-				new_s.insert(n + 1);
-			} else {
-				new_s.insert(stoll(t));
+			if (t.size() < n_str.size() || t.size() == n_str.size() && t <= n_str) {
+				CheckAndInsert(new_s, n, stoll(t));
 			}
 		}
 		s.swap(new_s);
