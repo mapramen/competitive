@@ -20,15 +20,23 @@ vector<int> ReadInputs() {
 }
 
 ll CalculateMinCost(int n, int m, int x1, int y1, int x2, int y2) {
-	ll ans = LLONG_MAX;
-	for (int i = 0; i <= 100; ++i) {
-		ll dx = n - i * x1, dy = m - i * y1;
-		if (dx < 0 || dx % x2 != 0 || dy < 0 || dy % y2 != 0 || dx / x2 != dy / y2) {
-			continue;
-		}
-		ans = min(ans, 3 * i + (dx / x2));
+	ll c = 1ll * x1 * y2 - 1ll * x2 * y1;
+	assert(c != 0);
+
+	ll a = 1ll * n * y2 - 1ll * m * x2;
+	ll b = -1ll * n * y1 + 1ll * m * x1;
+
+	if (a % c != 0 || b % c != 0) {
+		return 0;
 	}
-	return ans == LLONG_MAX ? 0 : ans;
+
+	a /= c, b /= c;
+
+	if (min(a, b) < 0 || max(a, b) > 100) {
+		return 0;
+	}
+
+	return 3 * a + b;
 }
 
 int main() {
