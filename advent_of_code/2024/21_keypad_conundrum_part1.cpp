@@ -6,7 +6,7 @@ typedef long long ll;
 
 #define pii pair<int, int>
 #define pll pair<ll, ll>
-#define NUMBER_OF_LEVELS 3
+#define NUMBER_OF_LEVELS 2
 
 // +---+---+---+
 // | 7 | 8 | 9 |
@@ -39,7 +39,10 @@ const unordered_map<char, pii> directions = {
 		{'<', {0, -1}},
 		{'>', {0, 1}}};
 
-const vector<char> moves = {'<', 'v', '>', '^', 'A'};
+const vector<char> moves = {'<', 'v', '>', '^'};
+
+map<pair<char, char>, vector<string>> previous_level_strings;
+map<pair<int, string>, ll> shortest_length;
 
 pii FindCoordinates(const vector<vector<char>>& keypad, const char key) {
 	for (int i = 0; i < keypad.size(); i++) {
@@ -52,82 +55,87 @@ pii FindCoordinates(const vector<vector<char>>& keypad, const char key) {
 	assert(false);
 }
 
-void CheckAndPush(queue<pair<vector<pii>, int>>& Q, map<pair<vector<pii>, int>, int>& dist, const vector<pii>& state, const int i, const int d) {
-	auto it = dist.find({state, i});
-	if (it != dist.end()) {
-		return;
+vector<string> GetPreviosLevelStrings(const vector<vector<char>>& keypad, const char previous_char, const char current_char) {
+	auto it = previous_level_strings.find({previous_char, current_char});
+	if (it != previous_level_strings.end()) {
+		return it->second;
 	}
 
-	dist[{state, i}] = d;
-	Q.push({state, i});
-}
+	const auto [sx, sy] = FindCoordinates(keypad, previous_char);
+	const auto [ex, ey] = FindCoordinates(keypad, current_char);
 
-int CalculateShortestSequenceLength(const string s) {
-	map<pair<vector<pii>, int>, int> dist;
-	queue<pair<vector<pii>, int>> Q;
+	vector<string> ans;
 
-	vector<pii> initial_state(NUMBER_OF_LEVELS);
-	initial_state[0] = FindCoordinates(numeric_keypad, 'A');
-	for (int level = 1; level < NUMBER_OF_LEVELS; level++) {
-		initial_state[level] = FindCoordinates(directional_keypad, 'A');
-	}
-
-	CheckAndPush(Q, dist, initial_state, 0, 0);
+	queue<tuple<string, int, int>> Q;
+	Q.push({"", sx, sy});
 
 	while (!Q.empty()) {
-		const auto [state, i] = Q.front();
-		const int d = dist[{state, i}];
+		auto [s, x, y] = Q.front();
 		Q.pop();
 
-		if (i == s.size()) {
-			return d;
+		if (x == ex && y == ey) {
+			if (ans.empty() || ans.back().size() == s.size()) {
+				ans.push_back(s);
+			}
+			continue;
 		}
 
-		for (const char move : moves) {
-			bool is_move_valid = true;
-			char previous_level_move = move;
-			vector<pii> new_state(state);
-			int ni = i;
+		if (!ans.empty() && ans.back().size() <= s.size()) {
+			continue;
+		}
 
-			for (int level = NUMBER_OF_LEVELS - 1; level > -1 && previous_level_move != ' '; --level) {
-				const auto [x, y] = new_state[level];
-				const auto& keypad = level == 0 ? numeric_keypad : directional_keypad;
+		for (char move : moves) {
+			const auto [dx, dy] = directions.at(move);
+			int nx = x + dx;
+			int ny = y + dy;
 
-				if (previous_level_move == 'A') {
-					previous_level_move = keypad[x][y];
-					continue;
-				}
-
-				const auto [dx, dy] = directions.at(previous_level_move);
-				const int nx = x + dx, ny = y + dy;
-
-				if (nx < 0 || nx >= keypad.size() || ny < 0 || ny >= keypad.front().size() || keypad[nx][ny] == ' ') {
-					is_move_valid = false;
-				} else {
-					new_state[level] = {nx, ny};
-				}
-
-				previous_level_move = ' ';
-			}
-
-			if (!is_move_valid || (previous_level_move != ' ' && s[ni] != previous_level_move)) {
+			if (nx < 0 || nx >= keypad.size() || ny < 0 || ny >= keypad.front().size() || keypad[nx][ny] == ' ') {
 				continue;
 			}
 
-			if (s[ni] == previous_level_move) {
-				++ni;
-			}
-
-			CheckAndPush(Q, dist, new_state, ni, d + 1);
+			Q.push({s + move, nx, ny});
 		}
 	}
 
-	assert(false);
+	return previous_level_strings[{previous_char, current_char}] = ans;
+}
+
+ll CalculateShortestSequenceLength(const int level, const string& s) {
+	if (level == 0) {
+		// printf("level: %d, s: %s, ans: %d\n", level, s.c_str(), s.size());
+		return s.size();
+	}
+
+	auto it = shortest_length.find({level, s});
+	if (it != shortest_length.end()) {
+		return it->second;
+	}
+
+	const auto& keypad = level == NUMBER_OF_LEVELS + 1 ? numeric_keypad : directional_keypad;
+
+	ll ans = 0;
+
+	char previous_char = 'A';
+	for (char current_char : s) {
+		ll ansx = LLONG_MAX;
+
+		for (string t : GetPreviosLevelStrings(keypad, previous_char, current_char)) {
+			t.push_back('A');
+			ansx = min(ansx, CalculateShortestSequenceLength(level - 1, t));
+		}
+
+		ans += ansx;
+		previous_char = current_char;
+	}
+
+	// printf("level: %d, s: %s, ans: %lld\n", level, s.c_str(), ans);
+
+	return shortest_length[{level, s}] = ans;
 }
 
 ll CalculateComplexity(const string s) {
-	int len = CalculateShortestSequenceLength(s);
-	int numeric_part = stoll(string(s.begin(), s.end() - 1));
+	ll len = CalculateShortestSequenceLength(NUMBER_OF_LEVELS + 1, s);
+	ll numeric_part = stoll(string(s.begin(), s.end() - 1));
 	// cout << s << " " << len << " " << numeric_part << endl;
 	return len * numeric_part;
 }
