@@ -11,6 +11,8 @@ typedef long long ll;
 #define SEQUENCE_LENGTH 4
 #define PRICE_MOD 10
 
+const int MAXN = int(pow(2 * PRICE_MOD, SEQUENCE_LENGTH));
+
 vector<ll> ReadInputs() {
 	vector<ll> inputs;
 	for (ll x; cin >> x; inputs.push_back(x));
@@ -24,15 +26,10 @@ ll CalculateNext(ll x) {
 	return x;
 }
 
-void AddSequenceToPrice(unordered_map<int, int>& sequence_to_price, int n, ll x) {
-	unordered_set<int> visited;
+void AddSequenceToPrice(vector<int>& sequence_to_price, int n, ll x) {
+	vector<bool> visited(MAXN);
 
-	int remove_rolling_hash_power = 1;
-	for (int i = 0; i < SEQUENCE_LENGTH; ++i) {
-		remove_rolling_hash_power *= 2 * PRICE_MOD;
-	}
-
-	queue<int> Q;
+	vector<int> a(n + 1);
 	int rolling_hash = 0;
 	for (int i = 1; i <= n; ++i) {
 		const int previous_price = x % PRICE_MOD;
@@ -42,22 +39,21 @@ void AddSequenceToPrice(unordered_map<int, int>& sequence_to_price, int n, ll x)
 
 		const int diff = PRICE_MOD + current_price - previous_price;
 		rolling_hash = rolling_hash * (2 * PRICE_MOD) + diff;
-		Q.push(diff);
+		a[i] = diff;
 
-		if (Q.size() > SEQUENCE_LENGTH) {
-			rolling_hash -= Q.front() * remove_rolling_hash_power;
-			Q.pop();
-		}
-
-		if (Q.size() != SEQUENCE_LENGTH) {
+		if (i < SEQUENCE_LENGTH) {
 			continue;
 		}
 
-		if (visited.count(rolling_hash)) {
+		if (i > SEQUENCE_LENGTH) {
+			rolling_hash -= a[i - SEQUENCE_LENGTH] * MAXN;
+		}
+
+		if (visited[rolling_hash]) {
 			continue;
 		}
 
-		visited.insert(rolling_hash);
+		visited[rolling_hash] = true;
 		sequence_to_price[rolling_hash] += current_price;
 	}
 }
@@ -65,15 +61,12 @@ void AddSequenceToPrice(unordered_map<int, int>& sequence_to_price, int n, ll x)
 int main() {
 	vector<ll> a = ReadInputs();
 
-	unordered_map<int, int> sequence_to_price;
+	vector<int> sequence_to_price(MAXN);
 	for (ll x : a) {
 		AddSequenceToPrice(sequence_to_price, NUMBER_OF_ITERATIONS, x);
 	}
 
-	int ans = 0;
-	for (const auto& [sequence, price] : sequence_to_price) {
-		ans = max(ans, price);
-	}
+	int ans = *max_element(sequence_to_price.begin(), sequence_to_price.end());
 	cout << ans << endl;
 
 	return 0;
