@@ -6,45 +6,36 @@ typedef long long ll;
 
 #define pii pair<int, int>
 #define pll pair<ll, ll>
+#define N 100001
 
-int DP(vector<int>& dp, const int n, const int i) {
-	if (i < 0) {
-		return n;
-	}
+int dp[N];
 
-	if (i == 0) {
-		return 0;
-	}
+void Initialize() {
+	iota(dp, dp + N, 0);
 
-	if (dp[i] != 0) {
-		return dp[i];
-	}
-
-	int ans = min(i, 1 + DP(dp, n, i - 1));
-	if (i != n) {
-		const int d = n - i;
-		for (int j = i - d, cost = 4 + 2; j >= 0; j -= d, cost += 2) {
-			ans = min(ans, cost + DP(dp, n, j));
+	for (int i = 1; i < N; ++i) {
+		dp[i] = min(dp[i], 1 + dp[i - 1]);
+		for (int j = 2 * i, cost = 4 + 2; j < N; j += i, cost += 2) {
+			dp[j] = min(dp[j], cost + dp[i]);
 		}
 	}
-
-	dp[i] = ans;
-	return ans;
 }
 
 int Solve() {
 	int n;
 	scanf("%d", &n);
-
-	vector<int> dp(n + 1);
-	return DP(dp, n, n);
+	return dp[n];
 }
 
 int main() {
+	Initialize();
+
 	int t;
 	scanf("%d", &t);
+
 	for (int k = 1; k <= t; ++k) {
 		printf("Case #%d: %d\n", k, Solve());
 	}
+
 	return 0;
 }
