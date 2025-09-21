@@ -7,20 +7,18 @@ typedef long long ll;
 #define pii pair<int, int>
 #define pll pair<ll, ll>
 
-bool DFS(const vector<vector<int>>& adj, vector<int>& marker, vector<int>& v, const int k, const int t, const int i) {
+bool DFS(const vector<vector<int>>& adj, vector<int>& marker, const int t, int& cnt, const int i) {
 	if (marker[i] == t) {
 		return true;
 	}
 
 	marker[i] = t;
-	v.push_back(i);
-
-	if (v.size() > k) {
+	if (--cnt < 0) {
 		return false;
 	}
 
 	for (int j : adj[i]) {
-		if (!DFS(adj, marker, v, k, t, j)) {
+		if (!DFS(adj, marker, t, cnt, j)) {
 			return false;
 		}
 	}
@@ -39,26 +37,13 @@ int Solve() {
 		adj[j].push_back(i);
 	}
 
-	vector<bool> is_safe(n + 1, true);
-	vector<int> marker(n + 1);
-	vector<int> v;
-
-	for (int i = 1; i <= n; ++i) {
-		v.clear();
-		DFS(adj, marker, v, k, i, i);
-
-		if (v.size() > k) {
-			continue;
-		}
-
-		for (const int x : v) {
-			is_safe[i] = false;
-		}
-	}
-
 	int ans = 0;
+	vector<int> marker(n + 1);
 	for (int i = 1; i <= n; ++i) {
-		ans += is_safe[i];
+		int cnt = k;
+		if (!DFS(adj, marker, i, cnt, i)) {
+			++ans;
+		}
 	}
 	return ans;
 }
