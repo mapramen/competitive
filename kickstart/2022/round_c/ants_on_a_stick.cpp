@@ -20,41 +20,17 @@ vector<int> Solve() {
 	iota(idxs.begin(), idxs.end(), 1);
 	sort(idxs.begin(), idxs.end(), [&](const int i, const int j) { return a[i] < a[j]; });
 
-	vector<int> b(n + 1);
-	iota(b.begin(), b.end(), 0);
-
-	stack<int> S;
-	deque<int> Q;
-
-	for (const int i : idxs) {
-		const auto [_, di] = a[i];
-		if (di == 1) {
-			S.push(i);
-			Q.push_back(i);
-			continue;
-		}
-
-		if (S.empty()) {
-			continue;
-		}
-
-		b[i] = Q.front();
-		Q.pop_front();
-		Q.push_back(i);
-	}
-
-	while (!S.empty()) {
-		b[S.top()] = Q.back();
-
-		S.pop();
-		Q.pop_back();
-	}
-
 	vector<pair<int, int>> v;
 	for (int i = 1; i <= n; ++i) {
 		const auto [x, d] = a[i];
 		const int t = d == 0 ? x : l - x;
-		v.push_back({t, b[i]});
+		v.push_back({t, d});
+	}
+	sort(v.begin(), v.end());
+
+	for (int k = 0, x = 0, y = n - 1; k < n; ++k) {
+		const auto [_, d] = v[k];
+		v[k].second = d == 0 ? idxs[x++] : idxs[y--];
 	}
 	sort(v.begin(), v.end());
 
