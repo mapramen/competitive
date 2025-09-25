@@ -12,17 +12,12 @@ string Solve() {
 	cin >> s >> t;
 
 	const int n = s.size(), m = t.size();
-	int ans = 0;
 
 	int i = 0;
-	for (int j = 0; j != m; ++j) {
-		if (i == n || s[i] != t[j]) {
-			++ans;
-			continue;
-		}
-		++i;
+	for (int j = 0; i != n && j != m; ++j) {
+		i += (s[i] == t[j]);
 	}
-	return i == n ? to_string(ans) : "IMPOSSIBLE";
+	return i == n ? to_string(m - n) : "IMPOSSIBLE";
 }
 
 int main() {
