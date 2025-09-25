@@ -44,15 +44,15 @@ string Solve() {
 
 	const auto five_mask = CalculatePalindromicMask(5), six_mask = CalculatePalindromicMask(6);
 
-	uint64_t string_mask = 1;
+	uint32_t string_mask = 1;
 
 	for (int i = 1; i <= n && string_mask != 0; ++i) {
 		const char c = s[i - 1];
 
-		uint64_t new_string_mask = 0;
+		uint32_t new_string_mask = 0;
 		while (string_mask != 0) {
-			const int x = __builtin_ctzll(string_mask);
-			string_mask ^= (1ull << x);
+			const int x = __builtin_ctz(string_mask);
+			string_mask ^= (1u << x);
 
 			for (int b = 0; b < 2; ++b) {
 				if (c != '?' && c != '0' + b) {
@@ -64,7 +64,7 @@ string Solve() {
 					continue;
 				}
 
-				new_string_mask |= (1ull << y);
+				new_string_mask |= (1u << TruncateMask(5, y));
 			}
 		}
 
