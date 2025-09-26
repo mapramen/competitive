@@ -7,6 +7,23 @@ typedef long long ll;
 #define pii pair<int, int>
 #define pll pair<ll, ll>
 
+struct tuple_hash {
+	static uint64_t splitmix64(uint64_t x) {
+		// http://xorshift.di.unimi.it/splitmix64.c
+		x += 0x9e3779b97f4a7c15;
+		x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+		x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+		return x ^ (x >> 31);
+	}
+
+	size_t operator()(tuple<int, int, char> t) const {
+		static const uint64_t FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();
+
+		const auto [x, y, d] = t;
+		return splitmix64((1ll * x * 100000 + y) * 1000 + d);
+	}
+};
+
 pii GetMove(const char d) {
 	switch (d) {
 		case 'N':
@@ -21,49 +38,21 @@ pii GetMove(const char d) {
 	assert(false);
 }
 
-void Prepare(set<pii>& S) {
-	if (!S.empty()) {
-		return;
-	}
-	S.insert({INT_MIN, INT_MIN});
-	S.insert({INT_MAX, INT_MAX});
+void Populate(unordered_map<tuple<int, int, char>, pii, tuple_hash>& table, const int x, const int y) {
+	table[{x, y, 'N'}] = {x - 1, y};
+	table[{x, y, 'E'}] = {x, y + 1};
+	table[{x, y, 'W'}] = {x, y - 1};
+	table[{x, y, 'S'}] = {x + 1, y};
 }
 
-void Insert(set<pii>& S, const int x) {
-	Prepare(S);
-
-	int l = x, r = x;
-
-	const auto jt = S.upper_bound({x, INT_MAX});
-	const auto it = prev(jt);
-
-	if (it->second == x - 1) {
-		l = it->first;
-		S.erase(it);
+pii GetNext(unordered_map<tuple<int, int, char>, pii, tuple_hash>& table, const char d, const int x, const int y) {
+	const auto it = table.find({x, y, d});
+	if (it == table.end()) {
+		return {x, y};
 	}
 
-	if (jt->first == x + 1) {
-		r = jt->second;
-		S.erase(jt);
-	}
-
-	S.insert({l, r});
-}
-
-void Insert(map<int, set<pii>>& x_to_ys, map<int, set<pii>>& y_to_xs, const int x, const int y) {
-	Insert(x_to_ys[x], y);
-	Insert(y_to_xs[y], x);
-}
-
-int Query(set<pii>& S, const int x, const int d) {
-	Prepare(S);
-
-	const auto [l, r] = *prev(S.upper_bound({x, INT_MAX}));
-	if (x < l || r < x) {
-		return x;
-	}
-
-	return d == -1 ? l - 1 : r + 1;
+	const auto [nx, ny] = it->second;
+	return it->second = GetNext(table, d, nx, ny);
 }
 
 pii Solve() {
@@ -73,17 +62,11 @@ pii Solve() {
 	string s;
 	cin >> s;
 
-	map<int, set<pii>> x_to_ys, y_to_xs;
-	Insert(x_to_ys, y_to_xs, x, y);
+	unordered_map<tuple<int, int, char>, pii, tuple_hash> table;
 
 	for (const char d : s) {
-		const auto [dx, dy] = GetMove(d);
-		if (dx != 0) {
-			x = Query(y_to_xs[y], x, dx);
-		} else {
-			y = Query(x_to_ys[x], y, dy);
-		}
-		Insert(x_to_ys, y_to_xs, x, y);
+		Populate(table, x, y);
+		tie(x, y) = GetNext(table, d, x, y);
 	}
 
 	return {x, y};
