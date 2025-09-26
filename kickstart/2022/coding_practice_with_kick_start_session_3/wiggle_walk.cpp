@@ -21,9 +21,16 @@ pii GetMove(const char d) {
 	assert(false);
 }
 
-void Insert(set<pii>& S, const int x) {
+void Prepare(set<pii>& S) {
+	if (!S.empty()) {
+		return;
+	}
 	S.insert({INT_MIN, INT_MIN});
 	S.insert({INT_MAX, INT_MAX});
+}
+
+void Insert(set<pii>& S, const int x) {
+	Prepare(S);
 
 	int l = x, r = x;
 
@@ -49,8 +56,7 @@ void Insert(map<int, set<pii>>& x_to_ys, map<int, set<pii>>& y_to_xs, const int 
 }
 
 int Query(set<pii>& S, const int x, const int d) {
-	S.insert({INT_MIN, INT_MIN});
-	S.insert({INT_MAX, INT_MAX});
+	Prepare(S);
 
 	const auto [l, r] = *prev(S.upper_bound({x, INT_MAX}));
 	if (x < l || r < x) {
