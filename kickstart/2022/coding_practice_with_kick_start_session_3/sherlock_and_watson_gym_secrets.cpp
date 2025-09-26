@@ -46,10 +46,7 @@ int Solve() {
 		const ll c1 = GetCount(n, k, i);
 		const ll c2 = cnt[pj];
 
-		int ansx = ModularMultiply(c1, c2);
-		if (ModularExponentation(i, b, k) == pj) {
-			ansx = (ansx + MOD - ModularMultiply(1ll, c1)) % MOD;
-		}
+		const int ansx = ModularMultiply(c1, c2 - (ModularExponentation(i, b, k) == pj));
 		ans = (ans + ansx) % MOD;
 	}
 	return ans;
