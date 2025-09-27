@@ -9,7 +9,7 @@ typedef long long ll;
 #define N 252
 
 char s[N][N];
-int A[N][N], B[N][N], C[N][N];
+int A[N][N];
 
 int CalculateUpperLimit(const int n, const int m) {
 	return n + m;
@@ -26,57 +26,34 @@ bool CheckTrivial(const int n, const int m, const int d) {
 	return true;
 }
 
-void Copy(const int n, const int m) {
-	for (int x = 1; x <= n; ++x) {
-		for (int y = 1; y <= m; ++y) {
-			C[x][y] = max(C[x][y], B[x][y]);
-		}
-	}
-}
-
 bool Check(const int n, const int m, const int d) {
 	if (CheckTrivial(n, m, d)) {
 		return true;
 	}
 
-	for (int x = 0; x <= n + 1; ++x) {
-		for (int y = 0; y <= m + 1; ++y) {
-			B[x][y] = INT_MIN;
-			C[x][y] = INT_MIN;
+	int min_x_plus_y = n + m, max_x_plus_y = 0;
+	int min_x_minus_y = n, max_x_minus_y = -m;
+
+	for (int x = 1; x <= n; ++x) {
+		for (int y = 1; y <= m; ++y) {
+			if (A[x][y] <= d) {
+				continue;
+			}
+
+			const int x_plus_y = x + y, x_minus_y = x - y;
+
+			min_x_plus_y = min(min_x_plus_y, x_plus_y);
+			max_x_plus_y = max(max_x_plus_y, x_plus_y);
+
+			min_x_minus_y = min(min_x_minus_y, x_minus_y);
+			max_x_minus_y = max(max_x_minus_y, x_minus_y);
 		}
 	}
 
 	for (int x = 1; x <= n; ++x) {
 		for (int y = 1; y <= m; ++y) {
-			B[x][y] = max(A[x][y] > d ? 0 : INT_MIN, 1 + max(B[x][y - 1], B[x - 1][y]));
-		}
-	}
-	Copy(n, m);
-
-	for (int x = 1; x <= n; ++x) {
-		for (int y = m; y > 0; --y) {
-			B[x][y] = max(A[x][y] > d ? 0 : INT_MIN, 1 + max(B[x][y + 1], B[x - 1][y]));
-		}
-	}
-	Copy(n, m);
-
-	for (int x = n; x > 0; --x) {
-		for (int y = 1; y <= m; ++y) {
-			B[x][y] = max(A[x][y] > d ? 0 : INT_MIN, 1 + max(B[x][y - 1], B[x + 1][y]));
-		}
-	}
-	Copy(n, m);
-
-	for (int x = n; x > 0; --x) {
-		for (int y = m; y > 0; --y) {
-			B[x][y] = max(A[x][y] > d ? 0 : INT_MIN, 1 + max(B[x][y + 1], B[x + 1][y]));
-		}
-	}
-	Copy(n, m);
-
-	for (int x = 1; x <= n; ++x) {
-		for (int y = 1; y <= m; ++y) {
-			if (C[x][y] <= d) {
+			const int x_plus_y = x + y, x_minus_y = x - y;
+			if (max(max(abs(x_plus_y - min_x_plus_y), abs(max_x_plus_y - x_plus_y)), max(abs(x_minus_y - min_x_minus_y), abs(max_x_minus_y - x_minus_y))) <= d) {
 				return true;
 			}
 		}
