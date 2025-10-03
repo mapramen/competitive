@@ -7,14 +7,6 @@ typedef long long ll;
 #define pii pair<int, int>
 #define pll pair<ll, ll>
 
-int Calculate(const vector<int>& a, const string& s) {
-	int ans = 0;
-	for (int i = 0; i < a.size(); ++i) {
-		ans += s[i] == '0' ? 0 : a[i];
-	}
-	return ans;
-}
-
 int Solve() {
 	int n, m, p;
 	cin >> n >> m >> p;
@@ -29,53 +21,41 @@ int Solve() {
 		}
 	}
 
-	vector<bool> min_bit(p);
-	int base_ans = 0;
-	for (int i = 0; i < p; ++i) {
-		const int z_cnt = a[i];
-		const int o_cnt = n - z_cnt;
-		if (o_cnt < z_cnt) {
-			a[i] = o_cnt;
-			min_bit[i] = true;
-		}
-
-		base_ans += a[i];
-		a[i] = abs(z_cnt - o_cnt);
-	}
-
-	vector<int> idxs(p);
-	iota(idxs.begin(), idxs.end(), 0);
-	sort(idxs.begin(), idxs.end(), [&](const int i, const int j) { return a[i] > a[j]; });
-	sort(a.begin(), a.end(), greater<int>());
-
-	unordered_set<string> forbidden;
-	while (m--) {
+	unordered_set<__uint128_t> forbidden;
+	for (int k = 0; k < m; ++k) {
 		string s;
 		cin >> s;
 
+		__uint128_t x = 0;
 		for (int i = 0; i < p; ++i) {
-			if (min_bit[i]) {
-				s[i] = '0' + (1 ^ (s[i] - '0'));
-			}
+			x = 2 * x + (s[i] - '0');
 		}
-
-		string t(p, '0');
-		for (int i = 0; i < p; ++i) {
-			t[i] = s[idxs[i]];
-		}
-		forbidden.insert(t);
+		forbidden.insert(x);
 	}
 
-	int ans = n * p;
-	for (int k = 0; k <= p; ++k) {
-		string s = string(p - k, '0') + string(k, '1');
-		while (forbidden.count(s) != 0 && next_permutation(s.begin(), s.end()));
+	vector<pair<int, __uint128_t>> S{{0, 0}}, new_S;
+	for (int i = 0; i < p; ++i) {
+		new_S.clear();
+		for (const auto [cost, x] : S) {
+			new_S.push_back({cost + a[i], 2 * x + 0});
+			new_S.push_back({cost + n - a[i], 2 * x + 1});
+		}
 
-		if (forbidden.count(s) != 0) {
+		S.swap(new_S);
+
+		if (S.size() <= m) {
 			continue;
 		}
 
-		ans = min(ans, base_ans + Calculate(a, s));
+		nth_element(S.begin(), S.begin() + m + 1, S.end());
+		S.resize(m + 1);
+	}
+
+	int ans = n * p;
+	for (const auto [ansx, x] : S) {
+		if (forbidden.count(x) == 0) {
+			ans = min(ans, ansx);
+		}
 	}
 	return ans;
 }
