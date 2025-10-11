@@ -6,24 +6,34 @@ typedef long long ll;
 
 #define pii pair<int, int>
 #define pll pair<ll, ll>
+#define N 100001
+
+int freq[N];
 
 vector<int> Solve() {
 	int n;
 	scanf("%d", &n);
 
-	vector<int> ans;
+	fill(freq, freq + N, 0);
 
-	priority_queue<int, vector<int>, greater<int>> Q;
+	vector<int> ans;
+	int i = 0, cnt = 0;
 	while (n--) {
 		int x;
 		scanf("%d", &x);
-		Q.push(x);
 
-		while (Q.top() < Q.size()) {
-			Q.pop();
+		++freq[x];
+		if (x >= i) {
+			++cnt;
 		}
 
-		ans.push_back(Q.size());
+		for (; i <= cnt; ++i) {
+			cnt -= freq[i];
+		}
+		--i;
+		cnt += freq[i];
+
+		ans.push_back(i);
 	}
 
 	return ans;
