@@ -37,7 +37,12 @@ ll Solve() {
 	vector<ll> dp((1 << n));
 	dp[0] = 1;
 
+	ll ans = 0;
 	for (int mask = 1; mask < (1 << n); ++mask) {
+		if (A[mask] > k) {
+			continue;
+		}
+
 		for (int tmask = mask; tmask != 0;) {
 			const int i = __builtin_ctz(tmask);
 			const int pmask = mask ^ (1 << i);
@@ -49,14 +54,12 @@ ll Solve() {
 
 			dp[mask] += dp[pmask];
 		}
-	}
 
-	ll ans = 0;
-	for (int mask = 0; mask < (1 << n); ++mask) {
 		if (A[mask] == k) {
 			ans += dp[mask];
 		}
 	}
+
 	return ans;
 }
 
