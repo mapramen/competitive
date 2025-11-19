@@ -10,19 +10,23 @@ ll Add(
 		const int k,
 		const int i,
 		const int x) {
-	ll ans = x;
-
-	top.insert({x, i});
-
-	if (top.size() > k) {
-		const auto [y, j] = *top.begin();
-		ans -= y;
-
-		top.erase({y, j});
-		bottom.insert({y, j});
+	if (top.size() < k) {
+		top.insert({x, i});
+		return x;
 	}
 
-	return ans;
+	if (x <= top.begin()->first) {
+		bottom.insert({x, i});
+		return 0;
+	}
+
+	const auto [y, j] = *top.begin();
+	top.erase({y, j});
+
+	top.insert({x, i});
+	bottom.insert({y, j});
+
+	return x - y;
 }
 
 ll Remove(
