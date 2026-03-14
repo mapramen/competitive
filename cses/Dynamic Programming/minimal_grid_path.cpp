@@ -2,14 +2,13 @@
 
 using namespace std;
 
-void checkAndPush(vector<string>& S, string& ans, vector<pair<int, int>>& nxt_level, const int x, const int y) {
-	if (x == S.size() || y == S.size() || S[x][y] == '\0') {
+void checkAndPush(const vector<string>& S, string& ans, vector<pair<int, int>>& nxt_level, const int x, const int y) {
+	if (x == S.size() || y == S.size()) {
 		return;
 	}
 
 	const char till_now_next_char = ans.back();
 	const char candidate = S[x][y];
-	S[x][y] = '\0';
 
 	if (till_now_next_char < candidate) {
 		return;
@@ -47,6 +46,8 @@ int main() {
 
 		cur_level.swap(nxt_level);
 		nxt_level.clear();
+
+		cur_level.erase(unique(cur_level.begin(), cur_level.end()), cur_level.end());
 	}
 
 	ans.pop_back();
