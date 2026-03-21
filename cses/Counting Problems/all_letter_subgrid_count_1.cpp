@@ -29,10 +29,30 @@ int main() {
 		for (int y = 1; y <= n; ++y) {
 			int max_len = 0;
 			for (int c = 0; c < k; ++c) {
-				const int len = 1 + (S[x - 1][y - 1] == 'A' + c ? 0 : min(dp[prv][y - 1][c], min(dp[prv][y][c], dp[cur][y - 1][c])));
+				int len = 0;
+				if (S[x - 1][y - 1] == 'A' + c) {
+					len = 1;
+				} else {
+					len = dp[prv][y][c];
+
+					if (dp[prv][y - 1][c] < len) {
+						len = dp[prv][y - 1][c];
+					}
+
+					if (dp[cur][y - 1][c] < len) {
+						len = dp[cur][y - 1][c];
+					}
+
+					++len;
+				}
+
 				dp[cur][y][c] = len;
-				max_len = max(max_len, len);
+
+				if (len > max_len) {
+					max_len = len;
+				}
 			}
+
 			ans += min(x, y) - max_len + 1;
 		}
 	}
