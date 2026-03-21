@@ -38,7 +38,7 @@ int main() {
 
 	pair<int, int> ans = {1, 1};
 
-	for (double x = (a[1] + b[1]) / 2.0, y = numeric_limits<double>::max(); y - x > 1e-6;) {
+	for (double x = (a[1] + b[1]) / 2.0, y = 2E14; y - x > 1e-6;) {
 		const double mid = x + (y - x) / 2.0;
 		const auto [idx1, idx2] = solve(a, b, mid);
 		if (idx1 != -1) {
