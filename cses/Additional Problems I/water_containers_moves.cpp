@@ -6,7 +6,7 @@ using namespace std;
 
 long long d[N][N];
 tuple<int, int, string> parent[N][N];
-priority_queue<tuple<long long, int, int>, vector<tuple<long long, int, int>>, greater<>> Q;
+queue<pair<int, int>> Q;
 
 void CheckAndPush(
 		const int i,
@@ -17,13 +17,13 @@ void CheckAndPush(
 		const int dj) {
 	const int ni = i + di, nj = j + dj;
 	const auto new_dist = parent_dist + max(abs(di), abs(dj));
-	if (new_dist >= d[ni][nj]) {
+	if (d[ni][nj] != LLONG_MAX) {
 		return;
 	}
 
 	d[ni][nj] = new_dist;
 	parent[ni][nj] = {i, j, op};
-	Q.push({new_dist, ni, nj});
+	Q.push({ni, nj});
 }
 
 int main() {
@@ -42,15 +42,13 @@ int main() {
 	}
 
 	d[0][0] = 0;
-	Q.push({0, 0, 0});
+	Q.push({0, 0});
 
 	while (!Q.empty()) {
-		const auto [dist, i, j] = Q.top();
+		const auto [i, j] = Q.front();
 		Q.pop();
 
-		if (dist > d[i][j]) {
-			continue;
-		}
+		const auto dist = d[i][j];
 
 		CheckAndPush(i, j, dist, "FILL A", a - i, 0);
 		CheckAndPush(i, j, dist, "FILL B", 0, b - j);
