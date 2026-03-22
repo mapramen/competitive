@@ -44,6 +44,7 @@ int main() {
 	}
 
 	vector<long long> results(k, 0);
+	vector<int> temp_c(n), temp_u(n), temp_d(n);
 
 	for (int d = 0; d < 2 * n - 1; ++d) {
 		int k_diag = d - (n - 1);
@@ -52,9 +53,16 @@ int main() {
 
 		for (int i = r_start; i <= r_end; ++i) {
 			int j = i - k_diag;
-			int L = grid[i][j] - 'A';
-			int m_tl = min(H[i][j], V[i][j]);
-			int m_br = min(Up[i][j], Left[i][j]);
+			temp_c[i] = grid[i][j] - 'A';
+			temp_u[i] = min(H[i][j], V[i][j]);
+			temp_d[i] = min(Up[i][j], Left[i][j]);
+		}
+
+		for (int i = r_start; i <= r_end; ++i) {
+			int j = i - k_diag;
+			int L = temp_c[i];
+			int m_tl = temp_u[i];
+			int m_br = temp_d[i];
 
 			update(L, i + 1, 1);
 			int rem_idx = i + m_tl - 1;
@@ -67,8 +75,8 @@ int main() {
 		}
 		// Cleanup BIT for the next diagonal
 		for (int i = r_start; i <= r_end; ++i) {
-			int L = grid[i][i - k_diag] - 'A';
-			if (i + min(H[i][i - k_diag], V[i][i - k_diag]) - 1 > r_end) update(L, i + 1, -1);
+			int L = temp_c[i];
+			if (i + temp_u[i] - 1 > r_end) update(L, i + 1, -1);
 		}
 	}
 
