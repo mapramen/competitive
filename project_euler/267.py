@@ -31,6 +31,7 @@ def calculate_min_heads(n: int, target: int) -> int:
 
 def calculate(n: int, target: int) -> float:
 	h = calculate_min_heads(n, target)
+	print(f"Minimum heads required: {h}")
 
 	dp = [0.0] * (n + 1)
 	dp[0] = 1.0
