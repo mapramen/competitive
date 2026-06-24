@@ -23,12 +23,6 @@ def calculate(n: int, m: int, n_limit: int | None = None, m_limit: int | None = 
 	next_n_limit = n_limit - 1 if m_limit == 0 else n_limit
 	next_m_limit = m if m_limit == 0 else m_limit - 1
 
-	ans = 0
-	for i in range(max(n, m) + 1):
-		if i * n_limit > n or i * m_limit > m:
-			break
-		ans += calculate(n - i * n_limit, m - i * m_limit, next_n_limit, next_m_limit)
-	# print(f"Calculating for n={n}, m={m}, n_limit={n_limit}, m_limit={m_limit}, ans={ans}")
-	return ans
+	return calculate(n, m, next_n_limit, next_m_limit) + calculate(n - n_limit, m - m_limit, n_limit, m_limit)
 
 print(calculate(60, 40))
